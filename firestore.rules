@@ -1,0 +1,52 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() { return request.auth != null; }
+    function memberPath() { return /databases/$(database)/documents/members/$(request.auth.uid); }
+    function isMember() {
+      return signedIn() && exists(memberPath()) && get(memberPath()).data.active == true;
+    }
+    function isCurrent(serviceId) {
+      return get(/databases/$(database)/documents/settings/current).data.serviceId == serviceId;
+    }
+    function isOpen(serviceId) {
+      return get(/databases/$(database)/documents/services/$(serviceId)).data.open == true;
+    }
+    function isLead(stationId) {
+      return isMember()
+        && get(memberPath()).data.role == 'lead'
+        && get(memberPath()).data.station == stationId;
+    }
+    function validResponse(stationId) {
+      let data = request.resource.data;
+      return stationId in ['camera', 'livestream', 'audio', 'onsite-projection', 'fb-projection']
+        && data.keys().hasOnly(['checks', 'ready', 'updatedAt', 'updatedBy'])
+        && data.keys().hasAll(['checks', 'ready', 'updatedAt', 'updatedBy'])
+        && data.checks is list && data.checks.size() == 3
+        && data.checks[0] is bool && data.checks[1] is bool && data.checks[2] is bool
+        && data.ready is bool
+        && (!data.ready || (data.checks[0] && data.checks[1] && data.checks[2]))
+        && data.updatedBy == request.auth.uid
+        && data.updatedAt == request.time;
+    }
+
+    match /members/{uid} {
+      allow get: if signedIn() && request.auth.uid == uid;
+      allow list, write: if false;
+    }
+    match /settings/current {
+      allow get: if isMember();
+      allow list, write: if false;
+    }
+    match /services/{serviceId} {
+      allow get: if isMember() && isCurrent(serviceId);
+      allow list, write: if false;
+      match /readiness/{stationId} {
+        allow get, list: if isMember() && isCurrent(serviceId);
+        allow create, update: if isLead(stationId) && isCurrent(serviceId)
+          && isOpen(serviceId) && validResponse(stationId);
+        allow delete: if false;
+      }
+    }
+  }
+}
