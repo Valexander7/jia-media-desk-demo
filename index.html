@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>JIA Media Desk · Interactive demo</title>
+  <style>
+    :root { --ink:#122a28; --muted:#526661; --line:#d9e3dd; --paper:#f5f7f1; --white:#fff; --green:#17654d; --green-soft:#e6f4eb; --amber:#8a5200; --amber-soft:#fff1d5; --blue:#114b6a; --blue-soft:#e5f2f8; --shadow:0 12px 32px rgba(15,44,33,.08); }
+    * { box-sizing:border-box; }
+    html { scroll-behavior:smooth; }
+    body { margin:0; background:var(--paper); color:var(--ink); font:16px/1.5 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
+    button,input,select { font:inherit; }
+    button,select { cursor:pointer; }
+    a { color:var(--blue); text-underline-offset:3px; }
+    a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible { outline:3px solid #ffba3b; outline-offset:3px; }
+    .shell { max-width:1180px; margin:auto; padding:0 18px 70px; }
+    .top { display:flex; align-items:center; justify-content:space-between; gap:16px; padding:22px 0 16px; }
+    .brand { display:flex; align-items:center; gap:12px; min-width:0; }
+    .mark { display:grid; place-items:center; width:42px; height:42px; border-radius:12px; color:white; background:var(--ink); font-weight:850; letter-spacing:-.05em; }
+    .brand strong { display:block; font-size:1.04rem; }
+    .brand small { display:block; color:var(--muted); font-size:.82rem; }
+    .reset { border:1px solid var(--line); background:white; color:var(--ink); border-radius:11px; padding:10px 14px; font-weight:700; }
+    .banner { position:sticky; top:0; z-index:10; background:#173a32; color:white; padding:10px 16px; border-radius:11px; font-size:.89rem; font-weight:700; box-shadow:var(--shadow); }
+    .tabs { display:flex; gap:7px; margin:20px 0; padding:5px; background:#e8eee8; border-radius:14px; width:max-content; max-width:100%; }
+    .tab { border:0; border-radius:10px; padding:10px 19px; background:transparent; color:#38534b; font-weight:800; white-space:nowrap; }
+    .tab[aria-selected="true"] { background:white; color:var(--ink); box-shadow:0 2px 8px rgba(0,0,0,.08); }
+    .view[hidden] { display:none !important; }
+    .hero { display:grid; grid-template-columns:minmax(0,1fr) auto; align-items:end; gap:20px; padding:29px; background:linear-gradient(130deg,#dcefe2,#f6f9f2 68%); border:1px solid #cfe3d5; border-radius:19px; }
+    .eyebrow { margin:0 0 4px; color:var(--green); font-size:.78rem; font-weight:850; letter-spacing:.1em; text-transform:uppercase; }
+    h1,h2,h3,p { margin-top:0; }
+    h1 { font-size:clamp(1.8rem,4vw,2.65rem); line-height:1.13; letter-spacing:-.045em; margin-bottom:8px; }
+    h2 { font-size:1.32rem; letter-spacing:-.025em; margin-bottom:4px; }
+    h3 { font-size:1rem; margin-bottom:6px; }
+    .sub,.hint { color:var(--muted); }
+    .sub { margin-bottom:0; max-width:640px; }
+    .role-box { min-width:205px; }
+    .role-box label { display:block; font-size:.8rem; font-weight:800; margin-bottom:5px; }
+    select,.search { width:100%; min-height:44px; padding:8px 12px; border:1px solid #adc4b7; border-radius:10px; background:white; color:var(--ink); }
+    .role-note { color:#315a4b; font-size:.89rem; margin:13px 0 0; }
+    .section { margin-top:22px; }
+    .section-head { display:flex; justify-content:space-between; align-items:start; gap:14px; margin-bottom:13px; }
+    .section-head p { margin:0; }
+    .source { display:inline-flex; align-items:center; min-height:40px; font-size:.87rem; font-weight:800; white-space:nowrap; }
+    .grid { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:18px; align-items:start; }
+    .card { background:white; border:1px solid var(--line); border-radius:16px; padding:19px; box-shadow:var(--shadow); }
+    .handoffs { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:9px; }
+    .handoff { border:1px solid var(--line); background:#fbfcfa; border-radius:12px; padding:13px; text-align:left; min-height:80px; }
+    .handoff strong,.handoff span { display:block; }
+    .handoff span { font-size:.84rem; margin-top:4px; color:var(--muted); }
+    .handoff[data-on="true"] { background:var(--green-soft); border-color:#a8d2b5; }
+    .handoff[data-on="true"] span { color:var(--green); font-weight:700; }
+    .step { border:1px solid var(--line); border-radius:12px; margin-top:9px; overflow:hidden; background:#fff; }
+    .step summary { cursor:pointer; list-style:none; display:flex; align-items:center; gap:12px; padding:14px; font-weight:800; min-height:56px; }
+    .step summary::-webkit-details-marker { display:none; }
+    .step summary::after { content:"+"; margin-left:auto; color:var(--green); font-size:1.3rem; }
+    .step[open] summary::after { content:"−"; }
+    .step .num { display:grid; place-items:center; flex:none; width:29px; height:29px; border-radius:50%; background:var(--blue-soft); color:var(--blue); font-size:.85rem; }
+    .step .body { padding:0 15px 15px 56px; color:#374d46; font-size:.92rem; }
+    .step .body p { margin:0 0 9px; }
+    .step .body a { font-weight:700; }
+    .station-picker { display:flex; flex-wrap:wrap; gap:7px; margin:12px 0; }
+    .chip { border:1px solid #b9cbc0; background:white; color:var(--ink); border-radius:999px; padding:8px 12px; font-weight:750; font-size:.88rem; }
+    .chip[aria-pressed="true"] { border-color:var(--green); background:var(--green); color:white; }
+    .status { display:inline-block; padding:4px 9px; border-radius:999px; background:var(--amber-soft); color:var(--amber); font-size:.78rem; font-weight:850; }
+    .status.ready { background:var(--green-soft); color:var(--green); }
+    .check-row { display:flex; gap:11px; align-items:flex-start; padding:10px 0; border-bottom:1px solid #ebf0eb; cursor:pointer; }
+    .check-row:last-child { border:0; }
+    input[type="checkbox"] { width:20px; height:20px; margin:2px 0 0; accent-color:var(--green); flex:none; }
+    .primary { display:inline-flex; align-items:center; justify-content:center; min-height:46px; border:0; background:var(--green); color:white; border-radius:11px; padding:11px 16px; font-weight:800; text-decoration:none; }
+    .primary:hover { background:#104d3b; }
+    .secondary { display:inline-flex; align-items:center; justify-content:center; min-height:44px; border:1px solid #b8cfc1; background:white; color:var(--green); border-radius:11px; padding:9px 15px; font-weight:800; text-decoration:none; }
+    .action-line { display:flex; gap:9px; flex-wrap:wrap; align-items:center; margin-top:15px; }
+    .note { font-size:.85rem; color:var(--muted); margin:11px 0 0; }
+    .director-list { display:grid; gap:8px; margin-top:12px; }
+    .director-item { display:flex; justify-content:space-between; gap:10px; padding:10px 12px; background:#f6f8f5; border-radius:9px; font-size:.91rem; }
+    .file-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; }
+    .file-item { border:1px solid var(--line); border-radius:13px; padding:16px; background:white; }
+    .file-item .kind { font-size:.75rem; font-weight:850; color:var(--green); text-transform:uppercase; letter-spacing:.08em; }
+    .file-item h3 { margin:5px 0; }
+    .file-item p { color:var(--muted); font-size:.88rem; margin-bottom:9px; }
+    .path { color:#446056; background:#f0f4ef; border-radius:7px; display:inline-block; padding:4px 7px; font-size:.8rem; word-break:break-word; }
+    .file-item a { display:block; width:max-content; max-width:100%; margin-top:10px; font-weight:800; }
+    .empty { padding:24px; border:1px dashed #aebfb4; border-radius:12px; color:var(--muted); }
+    .route { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:11px; }
+    .route .card { box-shadow:none; }
+    .route .arrow { font-size:1.5rem; color:var(--green); }
+    .footer { margin-top:26px; padding-top:16px; border-top:1px solid var(--line); color:var(--muted); font-size:.82rem; }
+    .toast { position:fixed; left:50%; bottom:20px; transform:translateX(-50%); z-index:20; background:#173a32; color:white; border-radius:10px; padding:11px 16px; box-shadow:var(--shadow); font-size:.88rem; font-weight:750; max-width:calc(100vw - 30px); }
+    .toast[hidden] { display:none; }
+    @media(max-width:760px) { .hero,.grid,.file-grid,.route { grid-template-columns:1fr; } .hero { padding:21px; } .role-box { width:100%; } .handoffs { grid-template-columns:repeat(2,minmax(0,1fr)); } .section-head { display:block; } .source { margin-top:5px; } }
+    @media(max-width:480px) { .shell { padding:0 13px 65px; } .top { padding:14px 0; } .brand small { display:none; } .mark { width:37px; height:37px; } .reset { padding:8px 10px; } .banner { margin:0 -13px; border-radius:0; } .tabs { width:100%; } .tab { flex:1; padding:10px 7px; font-size:.88rem; } .handoffs { gap:7px; } .handoff { padding:10px; } .card { padding:16px; } }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <header class="top">
+      <div class="brand"><div class="mark" aria-hidden="true">J</div><div><strong>JIA Media Desk</strong><small>One place to find your next step · interactive demo</small></div></div>
+      <button class="reset" id="reset" type="button">Reset demo</button>
+    </header>
+    <div class="banner" role="status">Sample service. Changes here do not update Google Drive or notify the team.</div>
+    <nav class="tabs" aria-label="Main sections" role="tablist">
+      <button class="tab" id="tab-sunday" role="tab" aria-controls="sunday" aria-selected="true" type="button">Sunday</button>
+      <button class="tab" id="tab-files" role="tab" aria-controls="files" aria-selected="false" type="button">Files</button>
+      <button class="tab" id="tab-after" role="tab" aria-controls="after" aria-selected="false" type="button">After Service</button>
+    </nav>
+
+    <main>
+      <section class="view" id="sunday" role="tabpanel" aria-labelledby="tab-sunday">
+        <div class="hero">
+          <div><p class="eyebrow">Fictional service · Sunday, 15 November 2026</p><h1>Know what is ready.<br>Find what comes next.</h1><p class="sub">Sample preacher: <strong>Pastor Mara Vale (fictional)</strong>. Preparation stage: <strong id="stage">Gathering materials</strong>. Check the live run sheet before serving.</p><p class="role-note" id="role-note"></p></div>
+          <div class="role-box"><label for="role">Viewing as</label><select id="role"><option value="projection">Projection member</option><option value="director">Floor Director</option><option value="photo">Photo volunteer</option><option value="general">Other media member</option></select></div>
+        </div>
+
+        <section class="section" aria-labelledby="handoff-title"><div class="section-head"><div><h2 id="handoff-title">This Sunday’s handoffs</h2><p class="hint">Tap to change sample status. Each change is Demo only.</p></div><a class="source" href="https://docs.google.com/spreadsheets/d/1ItieZgLx6cOteA-jBNAFiQaqH71Zr6w1y_Wyo9wKMaw/edit" target="_blank" rel="noopener noreferrer">Open source file ↗</a></div><div class="card"><div class="handoffs" id="handoffs"></div><p class="note">Source: JIA A&amp;B Media run sheet. Live status must be checked in Drive.</p></div></section>
+
+        <div class="grid section">
+          <section class="card" aria-labelledby="flow-title"><div class="section-head"><div><h2 id="flow-title">Service flow</h2><p class="hint">Open a step for booth guidance.</p></div><a class="source" href="https://drive.google.com/file/d/1SWlV6LEeAKeF2pVnzaVrCRnKNvO9rhD2/view" target="_blank" rel="noopener noreferrer">Open source file ↗</a></div><div id="flow"></div><p class="note">Summary for navigation. Program Flow.docx in Drive has the full current instructions.</p></section>
+          <section class="card" aria-labelledby="station-title"><div class="section-head"><div><h2 id="station-title">Station readiness</h2><p class="hint">Sample checks and go-signals.</p></div><a class="source" href="https://drive.google.com/file/d/1SWlV6LEeAKeF2pVnzaVrCRnKNvO9rhD2/view" target="_blank" rel="noopener noreferrer">Open source file ↗</a></div><div class="station-picker" id="station-picker" aria-label="Choose station"></div><div id="station-detail"></div><div id="director-summary"></div><p class="note">The real Floor Director collects all five live confirmations. No response shown here was sent.</p></section>
+        </div>
+      </section>
+
+      <section class="view" id="files" role="tabpanel" aria-labelledby="tab-files" hidden>
+        <div class="hero"><div><p class="eyebrow">Files &amp; assets</p><h1>Find the source quickly.</h1><p class="sub">These are pointers to Drive. Your existing Drive access still controls what opens.</p></div></div>
+        <section class="section"><div class="section-head"><div><h2>Find a file</h2><p class="hint">Search sample names, roles, or folders.</p></div></div><label for="file-search" class="eyebrow">Search files</label><input class="search" id="file-search" type="search" placeholder="Try lyrics, run sheet, Canva, photos…" autocomplete="off"><div class="file-grid section" id="file-results"></div></section>
+        <section class="section"><h2>Where work goes</h2><p class="hint">Follow the current Drive folder map and “selects first” rule.</p><div class="route"><div class="card"><div class="route-arrow" aria-hidden="true">01</div><h3>Raw files</h3><p>Put event originals in the dated folder under <strong>02_2026_EVENTS</strong>. Keep them organized by service or event.</p></div><div class="card"><div class="route-arrow" aria-hidden="true">02</div><h3>Selected highlights</h3><p>Pick the useful photos first and place the selection in that event’s <strong>_HIGHLIGHTS</strong> folder.</p></div><div class="card"><div class="route-arrow" aria-hidden="true">03</div><h3>Finished work</h3><p>Keep final deliverables with the owning event or approved destination. Put reusable logos and backgrounds in <strong>03_MEDIA_ASSETS</strong>.</p></div></div><p class="note">Folder guidance source: Media Ministry Playbook, checked against official Media Drive on 25 September 2026. Direct Drive links rechecked 26 September 2026. Confirm current folders before upload.</p></section>
+      </section>
+
+      <section class="view" id="after" role="tabpanel" aria-labelledby="tab-after" hidden>
+        <div class="hero"><div><p class="eyebrow">After service</p><h1>Finish the handoff.</h1><p class="sub">Use this sample list to walk through the end of service. Check the source procedures before handling real files or incidents.</p></div></div>
+        <div class="grid section"><section class="card"><div class="section-head"><div><h2>Closeout steps</h2><p class="hint">Checklist changes are Demo only.</p></div><a class="source" href="https://drive.google.com/file/d/1SWlV6LEeAKeF2pVnzaVrCRnKNvO9rhD2/view" target="_blank" rel="noopener noreferrer">Open source file ↗</a></div><div id="after-checks"></div></section><section class="card"><h2>Photo handoff</h2><p>Upload service photos to the team’s Google Photos destination after service. Keep raw event files in the dated Drive event folder, then select useful highlights into <strong>_HIGHLIGHTS</strong> before passing them for finished content.</p><p class="note">Google Photos destination is not linked here because this demo has no verified upload URL. Ask the team for the current destination.</p><div class="action-line"><a class="secondary" href="https://docs.google.com/spreadsheets/d/1ItieZgLx6cOteA-jBNAFiQaqH71Zr6w1y_Wyo9wKMaw/edit" target="_blank" rel="noopener noreferrer">Open source run sheet ↗</a></div></section></div>
+        <section class="section card"><div class="section-head"><div><h2>Quick debrief &amp; incident log</h2><p class="hint">Ask what went well and what needs attention. Record real incidents in the Drive log.</p></div><a class="source" href="https://docs.google.com/spreadsheets/d/1gEtl9LRUbiqaBI9GrmwCotJDe5_3FDFRdAGTlqq1nN0/edit" target="_blank" rel="noopener noreferrer">Open source file ↗</a></div><a class="primary" href="https://docs.google.com/spreadsheets/d/1gEtl9LRUbiqaBI9GrmwCotJDe5_3FDFRdAGTlqq1nN0/edit" target="_blank" rel="noopener noreferrer">Open incident log ↗</a><p class="note">This opens Drive. No incident can be recorded in the demo.</p></section>
+      </section>
+    </main>
+    <footer class="footer">Local interactive mockup · fictional service and names · no account connection, saved changes, or team notifications.</footer>
+  </div>
+  <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+  <script>
+    "use strict";
+    const sources = {
+      flow:"https://drive.google.com/file/d/1SWlV6LEeAKeF2pVnzaVrCRnKNvO9rhD2/view",
+      sheet:"https://docs.google.com/spreadsheets/d/1ItieZgLx6cOteA-jBNAFiQaqH71Zr6w1y_Wyo9wKMaw/edit",
+      incident:"https://docs.google.com/spreadsheets/d/1gEtl9LRUbiqaBI9GrmwCotJDe5_3FDFRdAGTlqq1nN0/edit",
+      collateral:"https://drive.google.com/drive/folders/19QQlv-uUvh4wRRrZlsfYBpbaN335ZxQ4",
+      streaming:"https://docs.google.com/document/d/1_jafV_0oeqcFYdJtSRa-tEa22If90O7QbCW553skXDM/edit",
+      events:"https://drive.google.com/drive/folders/1pFfS1oqcyIjK04P2QmlOz8uzcK7apZNS",
+      assets:"https://drive.google.com/drive/folders/1sesN0MV2wQf_8uRJinnQPVPcLVDMMzp7"
+    };
+    const handoffNames = ["Preacher", "Sermon title", "Outline", "Lyrics", "Slides", "Visuals"];
+    const stationData = [
+      {name:"Camera", checks:["Camera powered and feed visible", "Stage clear and positions checked", "Walkie-talkie tested"]},
+      {name:"Livestream", checks:["OBS scenes and intro/outro loaded", "Camera and Focusrite audio visible in OBS", "Ethernet checked; second-device monitor ready"]},
+      {name:"Audio", checks:["Mixer-to-Focusrite cable connected", "Preacher and worship mics checked", "Announcement mic checked"]},
+      {name:"Onsite Projection", checks:["Projector aligned and focused", "Lyrics and preaching slides loaded in FreeShow", "Videos and TV monitor tested"]},
+      {name:"FB Live Projection", checks:["Lyrics and lower thirds checked", "Videos loaded and tested", "HDMI link to livestream laptop confirmed"]}
+    ];
+    const flowData = [
+      {title:"Setup", body:"Set up each station’s own equipment. Check power, connections, camera positions, projector focus, audio route, and the livestream network."},
+      {title:"Content check", body:"Projection: verify the full lyric arrangement and preaching slides. Livestream: load the intro, outro, banners, and scenes. Check visuals on the actual output."},
+      {title:"Run-through & go-signal", body:"The Floor Director gathers a ready response from Camera, Livestream, Audio, Onsite Projection, and FB Live Projection before the service starts."},
+      {title:"Service live", body:"Follow the current run sheet for each segment. Livestream monitors the public feed on a second device; projection follows the service cues."},
+      {title:"Pack-up & handoff", body:"Each station packs its own gear. Upload photos, select highlights, debrief briefly, and use the Drive incident log if something needs recording."}
+    ];
+    const files = [
+      {kind:"Run sheet", title:"JIA A&B Media", detail:"Current roster and weekly run sheets", path:"01_ADMIN · Drive sheet", url:sources.sheet},
+      {kind:"Procedure", title:"Program Flow.docx", detail:"Full service flow, lyrics, slides, and station checks", path:"01_ADMIN/01_SOPs_and_Templates", url:sources.flow},
+      {kind:"Procedure", title:"Facebook Live streaming workflow", detail:"Streaming setup and quality checks", path:"01_ADMIN/01_SOPs_and_Templates", url:sources.streaming},
+      {kind:"Visual materials", title:"FB Live video collaterals", detail:"Video and graphic assets used for the stream", path:"03_MEDIA_ASSETS/FB Live Video", url:sources.collateral},
+      {kind:"Visual materials", title:"Canva materials", detail:"Ask the Visual Team for the current Canva design link", path:"Visual Team · current design link unverified", url:null},
+      {kind:"Event files", title:"Event folder root", detail:"Open the current year’s event folders; the fictional service has no real folder", path:"02_2026_EVENTS/YYYY-MM-DD_EventName", url:sources.events},
+      {kind:"Permanent assets", title:"Media assets", detail:"Logos, fonts, backgrounds, and stock audio", path:"03_MEDIA_ASSETS", url:sources.assets},
+      {kind:"Operations log", title:"Media incident log", detail:"Record and track real service issues in Drive", path:"01_ADMIN/03_Operations_and_Logs", url:sources.incident}
+    ];
+    const afterNames = ["Pack up each station’s own gear", "Upload service photos to the team’s Google Photos destination", "Move selected highlights into the event’s _HIGHLIGHTS folder", "Hold a quick what-went-well / what-needs-attention debrief"];
+    const fresh = () => ({role:"projection", tab:"sunday", station:3, handoffs:[true,true,false,true,false,true], checks:stationData.map(() => [false,false,false]), ready:stationData.map(() => false), after:afterNames.map(() => false), query:""});
+    let state = fresh();
+    let toastTimer;
+    const $ = id => document.getElementById(id);
+    const esc = s => String(s).replace(/[&<>"']/g,c => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));
+    function toast(message) { const el=$("toast"); el.textContent="Demo only · "+message; el.hidden=false; clearTimeout(toastTimer); toastTimer=setTimeout(()=>el.hidden=true,3000); }
+    function renderTabs() { for (const name of ["sunday","files","after"]) { const active=state.tab===name; $("tab-"+name).setAttribute("aria-selected",String(active)); $(name).hidden=!active; } }
+    function renderRole() { $("role").value=state.role; const copy={projection:"Projection focus: check lyrics, slides, output tests, then station readiness.",director:"Floor Director focus: review the five sample station responses below.",photo:"Photo focus: open After Service for upload and highlights handoff.",general:"Choose a station below to practice its readiness checks."}; $("role-note").textContent=copy[state.role]; $("director-summary").hidden=state.role!=="director"; }
+    function renderHandoffs() { $("handoffs").innerHTML=handoffNames.map((name,i)=>`<button class="handoff" type="button" data-handoff="${i}" data-on="${state.handoffs[i]}" aria-pressed="${state.handoffs[i]}"><strong>${esc(name)}</strong><span>${state.handoffs[i]?"Received / checked":"Waiting / unchecked"} · Demo only</span></button>`).join(""); const count=state.handoffs.filter(Boolean).length; $("stage").textContent=count===6?"Materials checked":count>=3?"Gathering materials":"Waiting for handoffs"; }
+    function renderFlow() { $("flow").innerHTML=flowData.map((s,i)=>`<details class="step"><summary><span class="num">${i+1}</span>${esc(s.title)}</summary><div class="body"><p>${esc(s.body)}</p><a href="${sources.flow}" target="_blank" rel="noopener noreferrer">Open source file ↗</a></div></details>`).join(""); }
+    function renderStations() {
+      $("station-picker").innerHTML=stationData.map((s,i)=>`<button class="chip" type="button" data-station="${i}" aria-pressed="${state.station===i}">${esc(s.name)}</button>`).join("");
+      const n=state.station, s=stationData[n], checked=state.checks[n].filter(Boolean).length;
+      $("station-detail").innerHTML=`<div class="section-head"><div><h3>${esc(s.name)}</h3><span class="status ${state.ready[n]?"ready":""}">${state.ready[n]?"Ready":"Not ready"} · Demo only</span></div><span class="hint">${checked}/${s.checks.length} checks</span></div><div>${s.checks.map((label,i)=>`<label class="check-row"><input type="checkbox" data-check="${i}" ${state.checks[n][i]?"checked":""}><span>${esc(label)}</span></label>`).join("")}</div><div class="action-line"><button class="primary" id="ready-btn" type="button">${state.ready[n]?"Mark not ready":"Mark station ready"}</button></div><p class="note">The ready button needs all sample checks ticked. This does not count as a real go-signal.</p>`;
+      $("director-summary").innerHTML=`<div class="section" style="border-top:1px solid var(--line);padding-top:16px"><h3>Floor Director view · Demo only</h3><p class="hint">${state.ready.filter(Boolean).length} of 5 sample stations ready</p><div class="director-list">${stationData.map((x,i)=>`<div class="director-item"><span>${esc(x.name)}</span><strong>${state.ready[i]?"Ready":"Waiting"}</strong></div>`).join("")}</div></div>`;
+      renderRole();
+    }
+    function renderFiles() { const q=state.query.trim().toLowerCase(), shown=files.filter(f=>(f.title+" "+f.detail+" "+f.path+" "+f.kind).toLowerCase().includes(q)); $("file-search").value=state.query; $("file-results").innerHTML=shown.length?shown.map(f=>`<article class="file-item"><span class="kind">${esc(f.kind)}</span><h3>${esc(f.title)}</h3><p>${esc(f.detail)}</p><span class="path">${esc(f.path)}</span>${f.url?`<a href="${f.url}" target="_blank" rel="noopener noreferrer">Open source file ↗</a>`:`<span class="note" style="display:block">Find in the named Drive folder; direct link not verified.</span>`}</article>`).join(""):`<div class="empty">No sample file matched. Try “run sheet,” “lyrics,” or “assets.”</div>`; }
+    function renderAfter() { $("after-checks").innerHTML=afterNames.map((x,i)=>`<label class="check-row"><input type="checkbox" data-after="${i}" ${state.after[i]?"checked":""}><span>${esc(x)}</span></label>`).join(""); }
+    function renderAll() { renderTabs(); renderRole(); renderHandoffs(); renderFlow(); renderStations(); renderFiles(); renderAfter(); }
+    document.querySelector(".tabs").addEventListener("click",e=>{ const b=e.target.closest("[role=tab]"); if(!b)return; state.tab=b.id.replace("tab-",""); renderTabs(); });
+    $("role").addEventListener("change",e=>{ state.role=e.target.value; if(state.role==="projection")state.station=3; renderStations(); toast("Role view changed"); });
+    $("handoffs").addEventListener("click",e=>{ const b=e.target.closest("[data-handoff]"); if(!b)return; const i=Number(b.dataset.handoff); state.handoffs[i]=!state.handoffs[i]; renderHandoffs(); toast(handoffNames[i]+" status changed"); });
+    $("station-picker").addEventListener("click",e=>{ const b=e.target.closest("[data-station]"); if(!b)return; state.station=Number(b.dataset.station); renderStations(); });
+    $("station-detail").addEventListener("change",e=>{ const input=e.target.closest("[data-check]"); if(!input)return; const n=state.station,i=Number(input.dataset.check); state.checks[n][i]=input.checked; if(!input.checked)state.ready[n]=false; renderStations(); toast(stationData[n].name+" check changed"); });
+    $("station-detail").addEventListener("click",e=>{ if(e.target.id!=="ready-btn")return; const n=state.station; if(state.ready[n]) {state.ready[n]=false; toast(stationData[n].name+" marked not ready");} else if(state.checks[n].every(Boolean)) {state.ready[n]=true; toast(stationData[n].name+" marked ready");} else {toast("Tick all sample checks before marking ready");} renderStations(); });
+    $("file-search").addEventListener("input",e=>{ state.query=e.target.value; renderFiles(); $("file-search").focus(); });
+    $("after-checks").addEventListener("change",e=>{ const input=e.target.closest("[data-after]"); if(!input)return; state.after[Number(input.dataset.after)]=input.checked; renderAfter(); toast("Closeout check changed"); });
+    $("reset").addEventListener("click",()=>{ state=fresh(); renderAll(); toast("All sample data reset"); window.scrollTo({top:0,behavior:"smooth"}); });
+    renderAll();
+  </script>
+</body>
+</html>
