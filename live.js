@@ -170,7 +170,7 @@ if (!config || !config.apiKey || !config.authDomain || !config.projectId || !con
     authApi.onAuthStateChanged(auth,async nextUser=>{
       clearListeners(); user=nextUser; member=null; selectedStation="";
       $("sign-in").hidden=Boolean(user); $("sign-out").hidden=!user;
-      if (!user) { setMessage("Sign in with your approved Google account to view the current service."); render(); return; }
+      if (!user) { setMessage("Sign in with the shared JIA Media Google account to view the current service."); render(); return; }
       try {
         const snap=await dbApi.getDocFromServer(dbApi.doc(db,"members",user.uid));
         const data=snap.exists()?snap.data():null;
