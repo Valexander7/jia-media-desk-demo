@@ -17,6 +17,7 @@ const config = window.MEDIA_DESK_FIREBASE_CONFIG;
 
 if (!config || !config.apiKey || !config.authDomain || !config.projectId || !config.appId) {
   $("message").textContent = "This pilot is waiting for the team's Google sign-in and shared storage setup. Use the sample demo to explore the flow; no live response is being collected here.";
+  $("message").hidden = false;
 } else {
   try {
     const version = "12.19.0";
@@ -29,15 +30,11 @@ if (!config || !config.apiKey || !config.authDomain || !config.projectId || !con
     const auth = authApi.getAuth(app);
     const db = dbApi.getFirestore(app);
     const provider = new authApi.GoogleAuthProvider();
-    let user = null, member = null, serviceId = null, service = null, selectedStation = "";
+    let user = null, member = null, serviceId = null, service = null;
     let readiness = {}, setup = null, pointerFresh = false, serviceFresh = false, readinessFresh = false, setupFresh = false, busy = false;
     let stopPointer = null, stopService = null, stopReadiness = null, stopSetup = null;
-    for (const station of stations) {
-      const option=document.createElement("option"); option.value=station.id; option.textContent=station.name;
-      $("station-select").append(option);
-    }
     function currentStation() {
-      return stations.find(s=>s.id===(member?.role==="shared"?selectedStation:member?.station));
+      return stations.find(s=>s.id===member?.station);
     }
 
     function clearListeners() {
@@ -54,14 +51,15 @@ if (!config || !config.apiKey || !config.authDomain || !config.projectId || !con
       if (!value?.toDate) return "No response saved";
       return "Updated " + new Intl.DateTimeFormat(undefined,{dateStyle:"medium",timeStyle:"short"}).format(value.toDate());
     }
-    function setMessage(text, error=false) { $("message").textContent=text; $("message").className=error?"error":"muted"; }
+    function setMessage(text, error=false) { $("message").textContent=text; $("message").className=error?"error":"muted"; $("message").hidden=!text; }
     function render() {
       const live=connected();
       $("connection").classList.toggle("warn",!live);
-      $("connection").textContent=live?"Live connection verified. Responses below are saved for this service.":"Live status is unavailable or unverified. Confirm go-signals directly with the Floor Director.";
+      $("connection").textContent=busy?"Saving your check. Please wait…":live?"Connected. Saved responses are shown below.":"Connection unavailable or unverified. Confirm go-signals directly with the Floor Director.";
       $("service-card").hidden=!member || !service;
       $("setup-card").hidden=!member || !service;
-      $("lead-card").hidden=!member || !["lead","shared"].includes(member.role) || !service;
+      $("operator-card").hidden=!member || member.role!=="shared" || !service;
+      $("lead-card").hidden=!member || member.role!=="lead" || !service;
       $("director-card").hidden=!member || !["director","shared"].includes(member.role) || !service;
       if (!service) return;
       $("service-title").textContent="Service: " + (service.date || serviceId);
@@ -69,6 +67,9 @@ if (!config || !config.apiKey || !config.authDomain || !config.projectId || !con
       $("sync-pill").textContent=live?"Live":"Unverified";
       $("sync-pill").className="pill "+(live?"ready":"unknown");
       const setupChecks=Array.isArray(setup?.checks)&&setup.checks.length===setupItems.length?setup.checks:[false,false,false];
+      const completedChecks=setupChecks.filter(Boolean).length+stations.reduce((total,s)=>total+(Array.isArray(readiness[s.id]?.checks)?readiness[s.id].checks.filter(Boolean).length:0),0);
+      const readyCount=stations.filter(s=>readiness[s.id]?.ready).length;
+      $("overall-progress").textContent=live?`Church setup ${setup?.complete?"Complete":"Waiting"} · ${completedChecks} of 18 checks · ${readyCount} of 5 stations Ready`:"Progress cannot be verified.";
       $("setup-pill").textContent=live?(setup?.complete?"Complete":"Waiting"):"Unverified";
       $("setup-pill").className="pill "+(live?(setup?.complete?"ready":""):"unknown");
       $("setup-progress").textContent=live?`${setupChecks.filter(Boolean).length} of ${setupItems.length} checks saved · ${stamp(setup?.updatedAt)}`:"Setup status cannot be verified right now.";
@@ -81,22 +82,35 @@ if (!config || !config.apiKey || !config.authDomain || !config.projectId || !con
       }));
       $("setup-complete-button").textContent=setup?.complete?"Reopen setup":"Mark setup complete";
       $("setup-complete-button").disabled=!live || busy || !["shared","director"].includes(member.role) || (!setup?.complete && !setupChecks.every(Boolean));
-      if (["lead","shared"].includes(member.role)) {
-        const shared=member.role==="shared";
-        $("station-select-label").hidden=!shared;
-        $("station-select").value=shared?selectedStation:"";
-        $("station-access-note").textContent=shared
-          ? "Shared JIA Media sign-in: anyone using this account can change any station. Responses show the station and time, not the person. Confirm each go-signal directly with the Floor Director."
-          : "Your checks and response are saved for this service.";
+      if (member.role==="shared") {
+        $("operator-stations").replaceChildren(...stations.map((station,index)=>{
+          const saved=readiness[station.id];
+          const checks=Array.isArray(saved?.checks)&&saved.checks.length===3?saved.checks:[false,false,false];
+          const section=document.createElement("section"); section.className="station-card";
+          const head=document.createElement("div"); head.className="row";
+          const title=document.createElement("h2"); title.textContent=`${index+1}. ${station.name}`;
+          const pill=document.createElement("span"); pill.className="pill "+(live?(saved?.ready?"ready":""):"unknown"); pill.textContent=live?(saved?.ready?"Ready":"Waiting"):"Unverified";
+          head.append(title,pill);
+          const update=document.createElement("p"); update.className="muted small-note"; update.textContent=live?stamp(saved?.updatedAt):"Response cannot be verified.";
+          const list=document.createElement("div"); list.className="checks";
+          list.append(...station.checks.map((label,i)=>{
+            const row=document.createElement("label"); row.className="check";
+            const input=document.createElement("input"); input.type="checkbox"; input.checked=checks[i]===true;
+            input.disabled=!live || busy; input.dataset.stationId=station.id; input.dataset.check=String(i);
+            const span=document.createElement("span"); span.textContent=label;
+            row.append(input,span); return row;
+          }));
+          const actions=document.createElement("div"); actions.className="actions";
+          const button=document.createElement("button"); button.type="button"; button.dataset.readyStation=station.id;
+          button.textContent=saved?.ready?"Withdraw Ready":"Mark Ready";
+          button.disabled=!live || busy || (!saved?.ready && !checks.every(Boolean));
+          actions.append(button); section.append(head,update,list,actions); return section;
+        }));
+      }
+      if (member.role==="lead") {
+        $("station-access-note").textContent="Your checks and response are saved for this service.";
         const station=currentStation();
-        if (!station) {
-          $("station-title").textContent="Choose a station";
-          $("station-pill").textContent="Select station";
-          $("station-pill").className="pill unknown";
-          $("station-update").textContent="Select the station you are checking.";
-          $("checks").replaceChildren();
-          $("ready-button").disabled=true;
-        } else {
+        if (station) {
         const saved=readiness[station.id];
         const checks=Array.isArray(saved?.checks) && saved.checks.length===3?saved.checks:[false,false,false];
         $("station-title").textContent=station.name;
@@ -115,8 +129,7 @@ if (!config || !config.apiKey || !config.authDomain || !config.projectId || !con
         }
       }
       if (["director","shared"].includes(member.role)) {
-        const count=stations.filter(s=>readiness[s.id]?.ready).length;
-        $("director-count").textContent=live?`${count} of 5 stations ready`:`Status cannot be verified. Ask each station directly.`;
+        $("director-count").textContent=live?`${readyCount} of 5 stations Ready`:`Status cannot be verified. Ask each station directly.`;
         $("stations").replaceChildren(...stations.map(s=>{
           const row=document.createElement("div"); row.className="station";
           const label=document.createElement("div");
@@ -180,14 +193,16 @@ if (!config || !config.apiKey || !config.authDomain || !config.projectId || !con
         setMessage("Could not save. Confirm your response with the Floor Director. "+error.message,true);
       } finally { busy=false; render(); }
     }
-    $("checks").addEventListener("change",event=>{
+    function changeStationCheck(event) {
       const input=event.target.closest("[data-check]"); if (!input) return;
-      const station=currentStation(); if (!station) return;
+      const station=stations.find(s=>s.id===(input.dataset.stationId||currentStation()?.id)); if (!station) return;
       const current=readiness[station.id];
       const checks=Array.isArray(current?.checks)&&current.checks.length===3?[...current.checks]:[false,false,false];
       checks[Number(input.dataset.check)]=input.checked;
       save(station.id,checks,false);
-    });
+    }
+    $("checks").addEventListener("change",changeStationCheck);
+    $("operator-stations").addEventListener("change",changeStationCheck);
     $("setup-checks").addEventListener("change",event=>{
       const input=event.target.closest("[data-setup-check]"); if (!input) return;
       const checks=Array.isArray(setup?.checks)&&setup.checks.length===setupItems.length?[...setup.checks]:[false,false,false];
@@ -204,9 +219,12 @@ if (!config || !config.apiKey || !config.authDomain || !config.projectId || !con
       const checks=Array.isArray(current?.checks)?current.checks:[false,false,false];
       if (current?.ready || checks.every(Boolean)) save(station.id,checks,!current?.ready);
     });
-    $("station-select").addEventListener("change",event=>{
-      selectedStation=stations.some(s=>s.id===event.target.value)?event.target.value:"";
-      render();
+    $("operator-stations").addEventListener("click",event=>{
+      const button=event.target.closest("[data-ready-station]"); if (!button) return;
+      const station=stations.find(s=>s.id===button.dataset.readyStation); if (!station) return;
+      const current=readiness[station.id];
+      const checks=Array.isArray(current?.checks)?current.checks:[false,false,false];
+      if (current?.ready || checks.every(Boolean)) save(station.id,checks,!current?.ready);
     });
     $("sign-in").addEventListener("click",async()=>{
       try { await authApi.signInWithPopup(auth,provider); }
@@ -216,8 +234,8 @@ if (!config || !config.apiKey || !config.authDomain || !config.projectId || !con
     window.addEventListener("online",render);
     window.addEventListener("offline",render);
     authApi.onAuthStateChanged(auth,async nextUser=>{
-      clearListeners(); user=nextUser; member=null; selectedStation="";
-      $("sign-in").hidden=Boolean(user); $("sign-out").hidden=!user;
+      clearListeners(); user=nextUser; member=null;
+      $("auth-card").hidden=Boolean(user); $("sign-in").hidden=Boolean(user); $("sign-out").hidden=!user;
       if (!user) { setMessage("Sign in with the shared JIA Media Google account to view the current service."); render(); return; }
       try {
         const snap=await dbApi.getDocFromServer(dbApi.doc(db,"members",user.uid));
@@ -226,7 +244,7 @@ if (!config || !config.apiKey || !config.authDomain || !config.projectId || !con
           setMessage("This account has no active station or Floor Director access. Ask the team owner to assign it.",true); render(); return;
         }
         member=data;
-        setMessage(data.role==="shared"?"Shared account view open. Select the station before recording its response.":data.role==="director"?"Floor Director view open.":"Your station view is open.");
+        setMessage(data.role==="shared"?"":data.role==="director"?"Floor Director view open.":"Your station view is open.");
         stopPointer=dbApi.onSnapshot(dbApi.doc(db,"settings","current"),{includeMetadataChanges:true},snap=>{
           pointerFresh=snap.exists() && !snap.metadata.fromCache && !snap.metadata.hasPendingWrites;
           const id=snap.exists()?snap.data().serviceId:null;
@@ -235,7 +253,7 @@ if (!config || !config.apiKey || !config.authDomain || !config.projectId || !con
             serviceId=null; service=null; setup=null; serviceFresh=readinessFresh=setupFresh=false;
             setMessage("No current service is configured. Ask the team owner to select one.",true);
           } else if (id!==serviceId) {
-            setMessage(member.role==="shared"?"Shared account view open. Select the station before recording its response.":member.role==="director"?"Floor Director view open.":"Your station view is open.");
+            setMessage(member.role==="shared"?"":member.role==="director"?"Floor Director view open.":"Your station view is open.");
             listenForService(id);
           }
           render();
@@ -247,5 +265,6 @@ if (!config || !config.apiKey || !config.authDomain || !config.projectId || !con
     $("connection").textContent="Live readiness is unavailable.";
     $("message").textContent="The shared service could not load. Use direct station confirmations. "+error.message;
     $("message").className="error";
+    $("message").hidden=false;
   }
 }

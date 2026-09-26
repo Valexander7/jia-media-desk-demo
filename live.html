@@ -3,67 +3,82 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>JIA Media Desk · Shared readiness pilot</title>
+  <title>JIA Alabang · Media checklist</title>
   <style>
-    :root { color-scheme:light; --ink:#122a28; --muted:#526661; --line:#d9e3dd; --paper:#f5f7f1; --green:#17654d; --amber:#8a5200; }
+    :root { color-scheme:light; --ink:#102a18; --muted:#425649; --line:#cbd8ca; --paper:#f4f8f2; --green:#184829; --sage:#e0f2d9; --amber:#714000; }
     * { box-sizing:border-box; }
-    body { margin:0; background:var(--paper); color:var(--ink); font:16px/1.5 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
+    html { -webkit-text-size-adjust:100%; }
+    body { margin:0; background:var(--paper); color:var(--ink); font:16px/1.45 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; overflow-wrap:anywhere; }
     button,input,select { font:inherit; }
-    button { cursor:pointer; border:0; border-radius:11px; min-height:46px; padding:10px 16px; font-weight:800; background:var(--green); color:white; }
+    button { cursor:pointer; border:0; border-radius:10px; min-height:48px; padding:11px 16px; font-weight:800; background:var(--green); color:white; }
     button:disabled { opacity:.55; cursor:not-allowed; }
-    button.secondary { background:white; color:var(--green); border:1px solid #b8cfc1; }
+    button.secondary { background:white; color:var(--green); border:1px solid #9db49e; }
     button:focus-visible,input:focus-visible,select:focus-visible,a:focus-visible { outline:3px solid #ffba3b; outline-offset:3px; }
-    a { color:#114b6a; font-weight:750; }
-    .shell { max-width:850px; margin:auto; padding:20px 16px 70px; }
-    header { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:16px; }
-    header strong { font-size:1.1rem; }
-    header small { display:block; color:var(--muted); }
-    .banner { background:#173a32; color:white; padding:12px 15px; border-radius:11px; font-weight:750; }
-    .banner.warn { background:#764000; }
-    .card { background:white; border:1px solid var(--line); border-radius:16px; padding:20px; margin-top:16px; }
+    a { color:#135b38; font-weight:750; }
+    .shell { max-width:760px; margin:auto; padding:0 12px 44px; }
+    header { display:flex; align-items:center; justify-content:space-between; gap:12px; margin:0 -12px 12px; padding:10px 14px; background:var(--green); color:white; }
+    .brand { display:flex; align-items:center; gap:10px; min-width:0; }
+    .brand img { width:48px; height:48px; object-fit:contain; flex:none; }
+    header strong { display:block; font-size:1.05rem; line-height:1.15; }
+    header small { display:block; color:#d8ebd7; font-size:.85rem; }
+    header a { color:white; font-size:.85rem; text-align:right; }
+    .banner { background:var(--green); color:white; padding:12px 14px; border-radius:10px; font-weight:750; }
+    .banner.warn { background:#714000; }
+    .card { background:white; border:1px solid var(--line); border-radius:12px; padding:16px; margin-top:12px; }
     h1,h2,p { margin-top:0; }
-    h1 { font-size:clamp(1.6rem,5vw,2.3rem); line-height:1.15; margin-bottom:8px; }
-    h2 { font-size:1.2rem; margin-bottom:8px; }
+    h1 { font-size:1.65rem; line-height:1.15; margin-bottom:8px; }
+    h2 { font-size:1.25rem; line-height:1.2; margin-bottom:8px; }
     .muted { color:var(--muted); }
     .row { display:flex; gap:10px; align-items:center; justify-content:space-between; flex-wrap:wrap; }
     .checks { margin:10px 0; }
-    select { display:block; width:100%; min-height:46px; margin:8px 0 14px; padding:9px 12px; border:1px solid #b8cfc1; border-radius:11px; background:white; color:var(--ink); }
-    .check { display:flex; align-items:flex-start; gap:12px; padding:12px 0; border-bottom:1px solid #e8eee8; }
-    .check input { width:22px; height:22px; flex:none; margin:2px 0; accent-color:var(--green); }
+    .check { display:flex; align-items:center; gap:12px; min-height:52px; padding:9px 0; border-bottom:1px solid #e0e9df; cursor:pointer; }
+    .check input { width:24px; height:24px; flex:none; margin:0; accent-color:var(--green); }
+    .check span { min-width:0; }
+    .progress { font-weight:800; color:var(--green); margin:10px 0 0; }
+    .station-card { border-top:2px solid var(--sage); padding:16px 0 6px; }
+    .station-card:first-child { border-top:0; padding-top:0; }
+    .station-card .actions { margin-top:10px; }
     .stations { display:grid; gap:9px; margin-top:14px; }
-    .station { display:flex; gap:12px; align-items:center; justify-content:space-between; padding:13px; border:1px solid var(--line); border-radius:11px; }
-    .pill { display:inline-block; border-radius:999px; padding:4px 10px; background:#fff1d5; color:var(--amber); font-size:.8rem; font-weight:850; }
-    .pill.ready { background:#e6f4eb; color:var(--green); }
+    .station { display:flex; gap:12px; align-items:center; justify-content:space-between; padding:13px; border:1px solid var(--line); border-radius:10px; }
+    .pill { display:inline-block; border-radius:999px; padding:4px 10px; background:#fff1d5; color:var(--amber); font-size:.85rem; font-weight:850; white-space:nowrap; }
+    .pill.ready { background:var(--sage); color:var(--green); }
     .pill.unknown { background:#edf0ef; color:var(--muted); }
     .error { color:#9a2b20; font-weight:700; }
-    .actions { display:flex; gap:9px; flex-wrap:wrap; margin-top:16px; }
+    .actions { display:flex; gap:12px; flex-wrap:wrap; margin-top:14px; }
+    .actions button { width:100%; }
+    .source-links { display:grid; gap:4px; }
+    .source-links a { display:flex; align-items:center; min-height:44px; }
+    .small-note { font-size:.9rem; }
+    @media (max-width:360px) { .shell { padding-left:10px; padding-right:10px; } header { margin-left:-10px; margin-right:-10px; } .card { padding:14px; } .brand img { width:42px; height:42px; } h1 { font-size:1.5rem; } }
     [hidden] { display:none !important; }
   </style>
 </head>
 <body>
   <div class="shell">
-    <header><div><strong>JIA Media Desk</strong><small>Shared readiness pilot</small></div><a href="index.html">Sample demo</a></header>
+    <header><div class="brand"><img src="jia-logo-green.png" alt="JIA logo" width="48" height="48"><div><strong>JIA Alabang</strong><small>Media checklist</small></div></div><a href="index.html">Sample demo</a></header>
     <div class="banner warn" id="connection" role="status">Live readiness is not connected.</div>
-    <section class="card">
-      <h1>Sunday setup and go-signals</h1>
-      <p class="muted">Use this after a Floor Director confirms the pilot is active for the current service. Drive remains the source for the full instructions and run sheet.</p>
-      <div class="actions"><a href="https://drive.google.com/file/d/1SWlV6LEeAKeF2pVnzaVrCRnKNvO9rhD2/view" target="_blank" rel="noopener noreferrer">Open source Program Flow ↗</a><a href="https://docs.google.com/spreadsheets/d/1ItieZgLx6cOteA-jBNAFiQaqH71Zr6w1y_Wyo9wKMaw/edit" target="_blank" rel="noopener noreferrer">Open JIA A&amp;B Media run sheet ↗</a></div>
-      <p id="message" class="muted" role="status" aria-live="polite" style="margin:16px 0 0"></p>
-      <div class="actions"><button id="sign-in" type="button" hidden>Sign in with JIA Media Google</button><button id="sign-out" class="secondary" type="button" hidden>Sign out</button></div>
+    <section class="card" id="auth-card">
+      <h1>Sunday media checklist</h1>
+      <p class="muted">One operator, one phone. Tick what you check; each tick saves online.</p>
+      <div class="source-links"><a href="https://drive.google.com/file/d/1SWlV6LEeAKeF2pVnzaVrCRnKNvO9rhD2/view" target="_blank" rel="noopener noreferrer">Open source Program Flow ↗</a></div>
+      <div class="actions"><button id="sign-in" type="button" hidden>Sign in with JIA Media Google</button></div>
     </section>
-    <section class="card" id="service-card" hidden><div class="row"><div><h2 id="service-title">Service</h2><p id="service-note" class="muted" style="margin:0"></p></div><span class="pill unknown" id="sync-pill">Checking</span></div></section>
+    <p id="message" class="muted" role="status" aria-live="polite" hidden></p>
+    <section class="card" id="service-card" hidden><div class="row"><div><h2 id="service-title">Service</h2><p id="service-note" class="muted" style="margin:0"></p></div><span class="pill unknown" id="sync-pill">Checking</span></div><p class="progress" id="overall-progress"></p></section>
     <section class="card" id="setup-card" hidden>
-      <div class="row"><div><h2>Before pre-worship · 7:20–7:30</h2><p class="muted" style="margin:0">One person can work through the church setup and save each check for the current service.</p></div><span class="pill unknown" id="setup-pill">Checking</span></div>
+      <div class="row"><div><h2>1 · Church setup</h2><p class="muted" style="margin:0">Before pre-worship · 7:20–7:30</p></div><span class="pill unknown" id="setup-pill">Checking</span></div>
       <p class="muted" id="setup-progress" style="margin:14px 0 0"></p>
       <div class="checks" id="setup-checks"></div>
       <div class="actions"><button id="setup-complete-button" type="button">Mark setup complete</button></div>
-      <p class="muted" style="margin:14px 0 0">The shared JIA Media sign-in records the time and account, not which person did the checks. The Floor Director still confirms setup and station go-signals directly.</p>
+      <p class="muted small-note" style="margin:14px 0 0">A tick records this Google account and the time. It does not identify the person holding the phone.</p>
       <a href="https://drive.google.com/file/d/1SWlV6LEeAKeF2pVnzaVrCRnKNvO9rhD2/view" target="_blank" rel="noopener noreferrer">Open source Program Flow ↗</a> <small class="muted">Checked September 27, 2026</small>
     </section>
-    <section class="card" id="lead-card" hidden><div class="row"><h2 id="station-title">Station</h2><span class="pill unknown" id="station-pill">Waiting</span></div><label id="station-select-label" for="station-select" hidden>Select your station<select id="station-select"><option value="">Choose a station</option></select></label><p class="muted" id="station-update"></p><div class="checks" id="checks"></div><div class="actions"><button id="ready-button" type="button">Mark ready</button></div><p class="muted" id="station-access-note" style="margin:13px 0 0"></p></section>
-    <section class="card" id="director-card" hidden><h2>Floor Director view</h2><p id="director-count" class="muted"></p><div class="stations" id="stations"></div><p class="muted" style="margin:14px 0 0">The Floor Director still confirms the actual go-signal with each station.</p></section>
+    <section class="card" id="operator-card" hidden><h2>2 · Station checks</h2><p class="muted">Work down the list. Each station needs all three ticks and a final Ready tap.</p><div id="operator-stations"></div><a href="https://drive.google.com/file/d/1SWlV6LEeAKeF2pVnzaVrCRnKNvO9rhD2/view" target="_blank" rel="noopener noreferrer">Open source Program Flow ↗</a></section>
+    <section class="card" id="lead-card" hidden><div class="row"><h2 id="station-title">Station</h2><span class="pill unknown" id="station-pill">Waiting</span></div><p class="muted" id="station-update"></p><div class="checks" id="checks"></div><div class="actions"><button id="ready-button" type="button">Mark ready</button></div><p class="muted" id="station-access-note" style="margin:13px 0 0"></p></section>
+    <section class="card" id="director-card" hidden><h2>3 · Handoff</h2><p id="director-count" class="progress"></p><div class="stations" id="stations"></div><p class="muted" style="margin:14px 0 0">Show this screen to the Floor Director. They still confirm the actual go-signal with each station before service starts.</p><a href="https://docs.google.com/spreadsheets/d/1ItieZgLx6cOteA-jBNAFiQaqH71Zr6w1y_Wyo9wKMaw/edit" target="_blank" rel="noopener noreferrer">Open JIA A&amp;B Media run sheet ↗</a></section>
+    <div class="actions"><button id="sign-out" class="secondary" type="button" hidden>Sign out</button></div>
   </div>
   <script src="live-config.js?v=3"></script>
-  <script type="module" src="live.js?v=5"></script>
+  <script type="module" src="live.js?v=6"></script>
 </body>
 </html>
