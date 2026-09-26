@@ -45,17 +45,25 @@
     <header><div><strong>JIA Media Desk</strong><small>Shared readiness pilot</small></div><a href="index.html">Sample demo</a></header>
     <div class="banner warn" id="connection" role="status">Live readiness is not connected.</div>
     <section class="card">
-      <h1>Station go-signals</h1>
-      <p class="muted">Use this only after a Floor Director confirms the pilot is active for the current service. The Program Flow in Drive remains the full instruction source.</p>
-      <a href="https://drive.google.com/file/d/1SWlV6LEeAKeF2pVnzaVrCRnKNvO9rhD2/view" target="_blank" rel="noopener noreferrer">Open source Program Flow ↗</a>
+      <h1>Sunday setup and go-signals</h1>
+      <p class="muted">Use this after a Floor Director confirms the pilot is active for the current service. Drive remains the source for the full instructions and run sheet.</p>
+      <div class="actions"><a href="https://drive.google.com/file/d/1SWlV6LEeAKeF2pVnzaVrCRnKNvO9rhD2/view" target="_blank" rel="noopener noreferrer">Open source Program Flow ↗</a><a href="https://docs.google.com/spreadsheets/d/1ItieZgLx6cOteA-jBNAFiQaqH71Zr6w1y_Wyo9wKMaw/edit" target="_blank" rel="noopener noreferrer">Open JIA A&amp;B Media run sheet ↗</a></div>
       <p id="message" class="muted" role="status" aria-live="polite" style="margin:16px 0 0"></p>
       <div class="actions"><button id="sign-in" type="button" hidden>Sign in with JIA Media Google</button><button id="sign-out" class="secondary" type="button" hidden>Sign out</button></div>
     </section>
     <section class="card" id="service-card" hidden><div class="row"><div><h2 id="service-title">Service</h2><p id="service-note" class="muted" style="margin:0"></p></div><span class="pill unknown" id="sync-pill">Checking</span></div></section>
+    <section class="card" id="setup-card" hidden>
+      <div class="row"><div><h2>Before pre-worship · 7:20–7:30</h2><p class="muted" style="margin:0">One person can work through the church setup and save each check for the current service.</p></div><span class="pill unknown" id="setup-pill">Checking</span></div>
+      <p class="muted" id="setup-progress" style="margin:14px 0 0"></p>
+      <div class="checks" id="setup-checks"></div>
+      <div class="actions"><button id="setup-complete-button" type="button">Mark setup complete</button></div>
+      <p class="muted" style="margin:14px 0 0">The shared JIA Media sign-in records the time and account, not which person did the checks. The Floor Director still confirms setup and station go-signals directly.</p>
+      <a href="https://drive.google.com/file/d/1SWlV6LEeAKeF2pVnzaVrCRnKNvO9rhD2/view" target="_blank" rel="noopener noreferrer">Open source Program Flow ↗</a> <small class="muted">Checked September 27, 2026</small>
+    </section>
     <section class="card" id="lead-card" hidden><div class="row"><h2 id="station-title">Station</h2><span class="pill unknown" id="station-pill">Waiting</span></div><label id="station-select-label" for="station-select" hidden>Select your station<select id="station-select"><option value="">Choose a station</option></select></label><p class="muted" id="station-update"></p><div class="checks" id="checks"></div><div class="actions"><button id="ready-button" type="button">Mark ready</button></div><p class="muted" id="station-access-note" style="margin:13px 0 0"></p></section>
     <section class="card" id="director-card" hidden><h2>Floor Director view</h2><p id="director-count" class="muted"></p><div class="stations" id="stations"></div><p class="muted" style="margin:14px 0 0">The Floor Director still confirms the actual go-signal with each station.</p></section>
   </div>
   <script src="live-config.js?v=3"></script>
-  <script type="module" src="live.js?v=4"></script>
+  <script type="module" src="live.js?v=5"></script>
 </body>
 </html>

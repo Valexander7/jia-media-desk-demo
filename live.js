@@ -7,6 +7,11 @@ const stations = [
   {id:"onsite-projection", name:"Onsite Projection", checks:["Projector aligned and focused", "Lyrics and preaching slides loaded in FreeShow", "Videos and TV monitor tested"]},
   {id:"fb-projection", name:"FB Live Projection", checks:["Lyrics and lower thirds checked", "Videos loaded and tested", "HDMI link to livestream laptop confirmed"]}
 ];
+const setupItems = [
+  "Front lights opened correctly",
+  "Speakers and audio switched on correctly",
+  "Projector, laptop, TV, and other media equipment switched on"
+];
 const $ = id => document.getElementById(id);
 const config = window.MEDIA_DESK_FIREBASE_CONFIG;
 
@@ -25,8 +30,8 @@ if (!config || !config.apiKey || !config.authDomain || !config.projectId || !con
     const db = dbApi.getFirestore(app);
     const provider = new authApi.GoogleAuthProvider();
     let user = null, member = null, serviceId = null, service = null, selectedStation = "";
-    let readiness = {}, pointerFresh = false, serviceFresh = false, readinessFresh = false, busy = false;
-    let stopPointer = null, stopService = null, stopReadiness = null;
+    let readiness = {}, setup = null, pointerFresh = false, serviceFresh = false, readinessFresh = false, setupFresh = false, busy = false;
+    let stopPointer = null, stopService = null, stopReadiness = null, stopSetup = null;
     for (const station of stations) {
       const option=document.createElement("option"); option.value=station.id; option.textContent=station.name;
       $("station-select").append(option);
@@ -37,13 +42,14 @@ if (!config || !config.apiKey || !config.authDomain || !config.projectId || !con
 
     function clearListeners() {
       if (stopReadiness) stopReadiness();
+      if (stopSetup) stopSetup();
       if (stopService) stopService();
       if (stopPointer) stopPointer();
-      stopReadiness = stopService = stopPointer = null;
-      serviceId = null; service = null; readiness = {};
-      pointerFresh = serviceFresh = readinessFresh = false;
+      stopReadiness = stopSetup = stopService = stopPointer = null;
+      serviceId = null; service = null; readiness = {}; setup = null;
+      pointerFresh = serviceFresh = readinessFresh = setupFresh = false;
     }
-    function connected() { return Boolean(user && member && serviceId && service?.open && pointerFresh && serviceFresh && readinessFresh && navigator.onLine); }
+    function connected() { return Boolean(user && member && serviceId && service?.open && pointerFresh && serviceFresh && readinessFresh && setupFresh && navigator.onLine); }
     function stamp(value) {
       if (!value?.toDate) return "No response saved";
       return "Updated " + new Intl.DateTimeFormat(undefined,{dateStyle:"medium",timeStyle:"short"}).format(value.toDate());
@@ -54,6 +60,7 @@ if (!config || !config.apiKey || !config.authDomain || !config.projectId || !con
       $("connection").classList.toggle("warn",!live);
       $("connection").textContent=live?"Live connection verified. Responses below are saved for this service.":"Live status is unavailable or unverified. Confirm go-signals directly with the Floor Director.";
       $("service-card").hidden=!member || !service;
+      $("setup-card").hidden=!member || !service;
       $("lead-card").hidden=!member || !["lead","shared"].includes(member.role) || !service;
       $("director-card").hidden=!member || !["director","shared"].includes(member.role) || !service;
       if (!service) return;
@@ -61,6 +68,19 @@ if (!config || !config.apiKey || !config.authDomain || !config.projectId || !con
       $("service-note").textContent=service.open?"Current service selected by the team owner.":"This service is closed. No changes can be saved.";
       $("sync-pill").textContent=live?"Live":"Unverified";
       $("sync-pill").className="pill "+(live?"ready":"unknown");
+      const setupChecks=Array.isArray(setup?.checks)&&setup.checks.length===setupItems.length?setup.checks:[false,false,false];
+      $("setup-pill").textContent=live?(setup?.complete?"Complete":"Waiting"):"Unverified";
+      $("setup-pill").className="pill "+(live?(setup?.complete?"ready":""):"unknown");
+      $("setup-progress").textContent=live?`${setupChecks.filter(Boolean).length} of ${setupItems.length} checks saved · ${stamp(setup?.updatedAt)}`:"Setup status cannot be verified right now.";
+      $("setup-checks").replaceChildren(...setupItems.map((label,i)=>{
+        const row=document.createElement("label"); row.className="check";
+        const input=document.createElement("input"); input.type="checkbox"; input.checked=setupChecks[i]===true;
+        input.disabled=!live || busy || !["shared","director"].includes(member.role); input.dataset.setupCheck=String(i);
+        const span=document.createElement("span"); span.textContent=label;
+        row.append(input,span); return row;
+      }));
+      $("setup-complete-button").textContent=setup?.complete?"Reopen setup":"Mark setup complete";
+      $("setup-complete-button").disabled=!live || busy || !["shared","director"].includes(member.role) || (!setup?.complete && !setupChecks.every(Boolean));
       if (["lead","shared"].includes(member.role)) {
         const shared=member.role==="shared";
         $("station-select-label").hidden=!shared;
@@ -114,7 +134,8 @@ if (!config || !config.apiKey || !config.authDomain || !config.projectId || !con
     function listenForService(id) {
       if (stopService) stopService();
       if (stopReadiness) stopReadiness();
-      service=null; readiness={}; serviceFresh=readinessFresh=false; serviceId=id;
+      if (stopSetup) stopSetup();
+      service=null; readiness={}; setup=null; serviceFresh=readinessFresh=setupFresh=false; serviceId=id;
       const serviceRef=dbApi.doc(db,"services",id);
       stopService=dbApi.onSnapshot(serviceRef,{includeMetadataChanges:true},snap=>{
         service=snap.exists()?snap.data():null;
@@ -127,7 +148,24 @@ if (!config || !config.apiKey || !config.authDomain || !config.projectId || !con
         readinessFresh=!snap.metadata.fromCache && !snap.metadata.hasPendingWrites;
         render();
       },error=>{ readinessFresh=false; setMessage("Could not read station responses: "+error.message,true); render(); });
+      stopSetup=dbApi.onSnapshot(dbApi.doc(db,"services",id,"setup","pre-service"),{includeMetadataChanges:true},snap=>{
+        setup=snap.exists()?snap.data():null;
+        setupFresh=!snap.metadata.fromCache && !snap.metadata.hasPendingWrites;
+        render();
+      },error=>{ setupFresh=false; setMessage("Could not read the pre-service checklist: "+error.message,true); render(); });
       render();
+    }
+    async function saveSetup(checks,complete) {
+      if (!connected() || !["shared","director"].includes(member.role) || busy) return;
+      busy=true; render();
+      try {
+        await dbApi.setDoc(dbApi.doc(db,"services",serviceId,"setup","pre-service"),{
+          checks, complete, updatedAt:dbApi.serverTimestamp(), updatedBy:user.uid
+        });
+        setMessage("Pre-service checklist saved for this service.");
+      } catch(error) {
+        setMessage("Could not save the pre-service checklist. Tell the Floor Director. "+error.message,true);
+      } finally { busy=false; render(); }
     }
     async function save(stationId,checks,ready) {
       if (!connected() || !["lead","shared"].includes(member.role) || busy) return;
@@ -149,6 +187,16 @@ if (!config || !config.apiKey || !config.authDomain || !config.projectId || !con
       const checks=Array.isArray(current?.checks)&&current.checks.length===3?[...current.checks]:[false,false,false];
       checks[Number(input.dataset.check)]=input.checked;
       save(station.id,checks,false);
+    });
+    $("setup-checks").addEventListener("change",event=>{
+      const input=event.target.closest("[data-setup-check]"); if (!input) return;
+      const checks=Array.isArray(setup?.checks)&&setup.checks.length===setupItems.length?[...setup.checks]:[false,false,false];
+      checks[Number(input.dataset.setupCheck)]=input.checked;
+      saveSetup(checks,false);
+    });
+    $("setup-complete-button").addEventListener("click",()=>{
+      const checks=Array.isArray(setup?.checks)&&setup.checks.length===setupItems.length?setup.checks:[false,false,false];
+      if (setup?.complete || checks.every(Boolean)) saveSetup(checks,!setup?.complete);
     });
     $("ready-button").addEventListener("click",()=>{
       const station=currentStation(); if (!station) return;
@@ -183,8 +231,8 @@ if (!config || !config.apiKey || !config.authDomain || !config.projectId || !con
           pointerFresh=snap.exists() && !snap.metadata.fromCache && !snap.metadata.hasPendingWrites;
           const id=snap.exists()?snap.data().serviceId:null;
           if (typeof id!=="string" || !/^\d{4}-\d{2}-\d{2}$/.test(id)) {
-            if (stopService) stopService(); if (stopReadiness) stopReadiness();
-            serviceId=null; service=null; serviceFresh=readinessFresh=false;
+            if (stopService) stopService(); if (stopReadiness) stopReadiness(); if (stopSetup) stopSetup();
+            serviceId=null; service=null; setup=null; serviceFresh=readinessFresh=setupFresh=false;
             setMessage("No current service is configured. Ask the team owner to select one.",true);
           } else if (id!==serviceId) {
             setMessage(member.role==="shared"?"Shared account view open. Select the station before recording its response.":member.role==="director"?"Floor Director view open.":"Your station view is open.");

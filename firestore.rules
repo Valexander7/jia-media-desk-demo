@@ -30,6 +30,20 @@ service cloud.firestore {
         && data.updatedBy == request.auth.uid
         && data.updatedAt == request.time;
     }
+    function canWriteSetup() {
+      return isMember() && get(memberPath()).data.role in ['shared', 'director'];
+    }
+    function validSetup() {
+      let data = request.resource.data;
+      return data.keys().hasOnly(['checks', 'complete', 'updatedAt', 'updatedBy'])
+        && data.keys().hasAll(['checks', 'complete', 'updatedAt', 'updatedBy'])
+        && data.checks is list && data.checks.size() == 3
+        && data.checks[0] is bool && data.checks[1] is bool && data.checks[2] is bool
+        && data.complete is bool
+        && (!data.complete || (data.checks[0] && data.checks[1] && data.checks[2]))
+        && data.updatedBy == request.auth.uid
+        && data.updatedAt == request.time;
+    }
 
     match /members/{uid} {
       allow get: if signedIn() && request.auth.uid == uid;
@@ -47,6 +61,12 @@ service cloud.firestore {
         allow create, update: if canWriteStation(stationId) && isCurrent(serviceId)
           && isOpen(serviceId) && validResponse(stationId);
         allow delete: if false;
+      }
+      match /setup/{setupId} {
+        allow get: if setupId == 'pre-service' && isMember() && isCurrent(serviceId);
+        allow create, update: if setupId == 'pre-service' && canWriteSetup()
+          && isCurrent(serviceId) && isOpen(serviceId) && validSetup();
+        allow list, delete: if false;
       }
     }
   }
