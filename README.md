@@ -2,7 +2,7 @@
 
 `index.html` is the published, sample-only demo. It has no login or shared storage. All changes reset on reload.
 
-`live.html` is the [published shared-readiness pilot](https://valexander7.github.io/jia-media-desk-demo/live.html). It connects to the team-owned `jia-media-desk` Firebase project on the no-cost Spark plan. Google sign-in is enabled and `valexander7.github.io` is an authorized domain. The JIA Media account has `role:"shared"` membership. No current service is selected, so no station response can be recorded. The source run sheet, procedures, assets, and incident log remain in Drive.
+`live.html` is the [published shared-readiness pilot](https://valexander7.github.io/jia-media-desk-demo/live.html). It connects to the team-owned `jia-media-desk` Firebase project on the no-cost Spark plan. Google sign-in is enabled and `valexander7.github.io` is an authorized domain. The JIA Media account has `role:"shared"` membership. The current service is `2026-09-27` and is open. The shared account can record station checks and readiness for that date. A test Camera response was saved, observed in a second tab, then reset to all checks false and Waiting; its timestamp remains visible. The source run sheet, procedures, assets, and incident log remain in Drive.
 
 ## Connect the pilot
 

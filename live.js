@@ -186,7 +186,10 @@ if (!config || !config.apiKey || !config.authDomain || !config.projectId || !con
             if (stopService) stopService(); if (stopReadiness) stopReadiness();
             serviceId=null; service=null; serviceFresh=readinessFresh=false;
             setMessage("No current service is configured. Ask the team owner to select one.",true);
-          } else if (id!==serviceId) listenForService(id);
+          } else if (id!==serviceId) {
+            setMessage(member.role==="shared"?"Shared account view open. Select the station before recording its response.":member.role==="director"?"Floor Director view open.":"Your station view is open.");
+            listenForService(id);
+          }
           render();
         },error=>{ pointerFresh=false; setMessage("Could not find the current service: "+error.message,true); render(); });
       } catch(error) { setMessage("Could not verify this account: "+error.message,true); }
