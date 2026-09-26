@@ -12,10 +12,11 @@ service cloud.firestore {
     function isOpen(serviceId) {
       return get(/databases/$(database)/documents/services/$(serviceId)).data.open == true;
     }
-    function isLead(stationId) {
+    function canWriteStation(stationId) {
       return isMember()
-        && get(memberPath()).data.role == 'lead'
-        && get(memberPath()).data.station == stationId;
+        && (get(memberPath()).data.role == 'shared'
+          || (get(memberPath()).data.role == 'lead'
+            && get(memberPath()).data.station == stationId));
     }
     function validResponse(stationId) {
       let data = request.resource.data;
@@ -43,7 +44,7 @@ service cloud.firestore {
       allow list, write: if false;
       match /readiness/{stationId} {
         allow get, list: if isMember() && isCurrent(serviceId);
-        allow create, update: if isLead(stationId) && isCurrent(serviceId)
+        allow create, update: if canWriteStation(stationId) && isCurrent(serviceId)
           && isOpen(serviceId) && validResponse(stationId);
         allow delete: if false;
       }

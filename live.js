@@ -24,9 +24,16 @@ if (!config || !config.apiKey || !config.authDomain || !config.projectId || !con
     const auth = authApi.getAuth(app);
     const db = dbApi.getFirestore(app);
     const provider = new authApi.GoogleAuthProvider();
-    let user = null, member = null, serviceId = null, service = null;
+    let user = null, member = null, serviceId = null, service = null, selectedStation = "";
     let readiness = {}, pointerFresh = false, serviceFresh = false, readinessFresh = false, busy = false;
     let stopPointer = null, stopService = null, stopReadiness = null;
+    for (const station of stations) {
+      const option=document.createElement("option"); option.value=station.id; option.textContent=station.name;
+      $("station-select").append(option);
+    }
+    function currentStation() {
+      return stations.find(s=>s.id===(member?.role==="shared"?selectedStation:member?.station));
+    }
 
     function clearListeners() {
       if (stopReadiness) stopReadiness();
@@ -47,15 +54,29 @@ if (!config || !config.apiKey || !config.authDomain || !config.projectId || !con
       $("connection").classList.toggle("warn",!live);
       $("connection").textContent=live?"Live connection verified. Responses below are saved for this service.":"Live status is unavailable or unverified. Confirm go-signals directly with the Floor Director.";
       $("service-card").hidden=!member || !service;
-      $("lead-card").hidden=!member || member.role!=="lead" || !service;
-      $("director-card").hidden=!member || member.role!=="director" || !service;
+      $("lead-card").hidden=!member || !["lead","shared"].includes(member.role) || !service;
+      $("director-card").hidden=!member || !["director","shared"].includes(member.role) || !service;
       if (!service) return;
       $("service-title").textContent="Service: " + (service.date || serviceId);
       $("service-note").textContent=service.open?"Current service selected by the team owner.":"This service is closed. No changes can be saved.";
       $("sync-pill").textContent=live?"Live":"Unverified";
       $("sync-pill").className="pill "+(live?"ready":"unknown");
-      if (member.role==="lead") {
-        const station=stations.find(s=>s.id===member.station);
+      if (["lead","shared"].includes(member.role)) {
+        const shared=member.role==="shared";
+        $("station-select-label").hidden=!shared;
+        $("station-select").value=shared?selectedStation:"";
+        $("station-access-note").textContent=shared
+          ? "Shared JIA Media sign-in: anyone using this account can change any station. Responses show the station and time, not the person. Confirm each go-signal directly with the Floor Director."
+          : "Your checks and response are saved for this service.";
+        const station=currentStation();
+        if (!station) {
+          $("station-title").textContent="Choose a station";
+          $("station-pill").textContent="Select station";
+          $("station-pill").className="pill unknown";
+          $("station-update").textContent="Select the station you are checking.";
+          $("checks").replaceChildren();
+          $("ready-button").disabled=true;
+        } else {
         const saved=readiness[station.id];
         const checks=Array.isArray(saved?.checks) && saved.checks.length===3?saved.checks:[false,false,false];
         $("station-title").textContent=station.name;
@@ -71,8 +92,9 @@ if (!config || !config.apiKey || !config.authDomain || !config.projectId || !con
         }));
         $("ready-button").textContent=saved?.ready?"Withdraw ready response":"Mark station ready";
         $("ready-button").disabled=!live || busy || (!saved?.ready && !checks.every(Boolean));
+        }
       }
-      if (member.role==="director") {
+      if (["director","shared"].includes(member.role)) {
         const count=stations.filter(s=>readiness[s.id]?.ready).length;
         $("director-count").textContent=live?`${count} of 5 stations ready`:`Status cannot be verified. Ask each station directly.`;
         $("stations").replaceChildren(...stations.map(s=>{
@@ -107,11 +129,12 @@ if (!config || !config.apiKey || !config.authDomain || !config.projectId || !con
       },error=>{ readinessFresh=false; setMessage("Could not read station responses: "+error.message,true); render(); });
       render();
     }
-    async function save(checks,ready) {
-      if (!connected() || member.role!=="lead" || busy) return;
+    async function save(stationId,checks,ready) {
+      if (!connected() || !["lead","shared"].includes(member.role) || busy) return;
+      if (!stations.some(s=>s.id===stationId) || (member.role==="lead" && member.station!==stationId)) return;
       busy=true; render();
       try {
-        await dbApi.setDoc(dbApi.doc(db,"services",serviceId,"readiness",member.station),{
+        await dbApi.setDoc(dbApi.doc(db,"services",serviceId,"readiness",stationId),{
           checks, ready, updatedAt:dbApi.serverTimestamp(), updatedBy:user.uid
         });
         setMessage("Response saved for this service.");
@@ -121,15 +144,21 @@ if (!config || !config.apiKey || !config.authDomain || !config.projectId || !con
     }
     $("checks").addEventListener("change",event=>{
       const input=event.target.closest("[data-check]"); if (!input) return;
-      const current=readiness[member.station];
+      const station=currentStation(); if (!station) return;
+      const current=readiness[station.id];
       const checks=Array.isArray(current?.checks)&&current.checks.length===3?[...current.checks]:[false,false,false];
       checks[Number(input.dataset.check)]=input.checked;
-      save(checks,false);
+      save(station.id,checks,false);
     });
     $("ready-button").addEventListener("click",()=>{
-      const current=readiness[member.station];
+      const station=currentStation(); if (!station) return;
+      const current=readiness[station.id];
       const checks=Array.isArray(current?.checks)?current.checks:[false,false,false];
-      if (current?.ready || checks.every(Boolean)) save(checks,!current?.ready);
+      if (current?.ready || checks.every(Boolean)) save(station.id,checks,!current?.ready);
+    });
+    $("station-select").addEventListener("change",event=>{
+      selectedStation=stations.some(s=>s.id===event.target.value)?event.target.value:"";
+      render();
     });
     $("sign-in").addEventListener("click",async()=>{
       try { await authApi.signInWithPopup(auth,provider); }
@@ -139,17 +168,17 @@ if (!config || !config.apiKey || !config.authDomain || !config.projectId || !con
     window.addEventListener("online",render);
     window.addEventListener("offline",render);
     authApi.onAuthStateChanged(auth,async nextUser=>{
-      clearListeners(); user=nextUser; member=null;
+      clearListeners(); user=nextUser; member=null; selectedStation="";
       $("sign-in").hidden=Boolean(user); $("sign-out").hidden=!user;
       if (!user) { setMessage("Sign in with your approved Google account to view the current service."); render(); return; }
       try {
         const snap=await dbApi.getDocFromServer(dbApi.doc(db,"members",user.uid));
         const data=snap.exists()?snap.data():null;
-        if (!data?.active || !["lead","director"].includes(data.role) || (data.role==="lead" && !stations.some(s=>s.id===data.station))) {
+        if (!data?.active || !["lead","director","shared"].includes(data.role) || (data.role==="lead" && !stations.some(s=>s.id===data.station))) {
           setMessage("This account has no active station or Floor Director access. Ask the team owner to assign it.",true); render(); return;
         }
         member=data;
-        setMessage(data.role==="director"?"Floor Director view open.":"Your station view is open.");
+        setMessage(data.role==="shared"?"Shared account view open. Select the station before recording its response.":data.role==="director"?"Floor Director view open.":"Your station view is open.");
         stopPointer=dbApi.onSnapshot(dbApi.doc(db,"settings","current"),{includeMetadataChanges:true},snap=>{
           pointerFresh=snap.exists() && !snap.metadata.fromCache && !snap.metadata.hasPendingWrites;
           const id=snap.exists()?snap.data().serviceId:null;
