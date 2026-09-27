@@ -67,7 +67,7 @@
       <h1>Sunday media checklist</h1>
       <p class="muted">One operator, one phone. Tick what you check; each tick saves online.</p>
       <div class="source-links"><a href="https://drive.google.com/file/d/1SWlV6LEeAKeF2pVnzaVrCRnKNvO9rhD2/view" target="_blank" rel="noopener noreferrer">Open source Program Flow ↗</a></div>
-      <div class="actions"><button id="sign-in" type="button" hidden>Sign in with JIA Media Google</button></div>
+      <div class="actions"><button id="sign-in" type="button" hidden>Sign in with an approved Google account</button></div>
     </section>
     <p id="message" class="muted" role="status" aria-live="polite" hidden></p>
     <section class="card" id="service-card" hidden><div class="row"><div><h2 id="service-title">Service</h2><p id="service-note" class="muted" style="margin:0"></p></div><span class="pill unknown" id="sync-pill">Checking</span></div><p class="progress" id="overall-progress"></p></section>
@@ -76,7 +76,7 @@
       <p class="muted" id="setup-progress" style="margin:14px 0 0"></p>
       <div class="checks" id="setup-checks"></div>
       <div class="actions"><button id="setup-complete-button" type="button">Mark setup complete</button></div>
-      <p class="muted small-note" style="margin:14px 0 0">A tick records this Google account and the time. It does not identify the person holding the phone.</p>
+      <p class="muted small-note" style="margin:14px 0 0">A tick records the signed-in Google account and the time. A shared login cannot identify who held the phone.</p>
       <a href="https://drive.google.com/file/d/1SWlV6LEeAKeF2pVnzaVrCRnKNvO9rhD2/view" target="_blank" rel="noopener noreferrer">Open source Program Flow ↗</a> <small class="muted">Checked September 27, 2026</small>
     </section>
     <section class="card" id="operator-card" hidden><h2>2 · Station checks</h2><p class="muted">Work down the list. Each station needs all three ticks and a final Ready tap.</p><div id="operator-stations"></div><a href="https://drive.google.com/file/d/1SWlV6LEeAKeF2pVnzaVrCRnKNvO9rhD2/view" target="_blank" rel="noopener noreferrer">Open source Program Flow ↗</a></section>
@@ -85,6 +85,6 @@
     <div class="actions"><button id="sign-out" class="secondary" type="button" hidden>Sign out</button></div>
   </div>
   <script src="live-config.js?v=3"></script>
-  <script type="module" src="live.js?v=7"></script>
+  <script type="module" src="live.js?v=8"></script>
 </body>
 </html>

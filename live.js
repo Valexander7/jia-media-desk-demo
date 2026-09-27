@@ -239,12 +239,12 @@ if (!config || !config.apiKey || !config.authDomain || !config.projectId || !con
     authApi.onAuthStateChanged(auth,async nextUser=>{
       clearListeners(); user=nextUser; member=null;
       $("auth-card").hidden=Boolean(user); $("sign-in").hidden=Boolean(user); $("sign-out").hidden=!user;
-      if (!user) { setMessage("Sign in with the shared JIA Media Google account to view the current service."); render(); return; }
+      if (!user) { setMessage("Sign in with a Google account approved by the team owner to view the current service."); render(); return; }
       try {
         const snap=await dbApi.getDocFromServer(dbApi.doc(db,"members",user.uid));
         const data=snap.exists()?snap.data():null;
         if (!data?.active || !["lead","director","shared"].includes(data.role) || (data.role==="lead" && !stations.some(s=>s.id===data.station))) {
-          setMessage("This account has no active station or Floor Director access. Ask the team owner to assign it.",true); render(); return;
+          setMessage(`This Google account is not approved for the Media checklist: ${user.email || "email unavailable"}. Ask the team owner to grant access to this account. Do not share your password.`,true); render(); return;
         }
         member=data;
         setMessage(data.role==="shared"?"":data.role==="director"?"Floor Director view open.":"Your station view is open.");
