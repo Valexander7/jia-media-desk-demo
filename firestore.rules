@@ -6,17 +6,38 @@ service cloud.firestore {
     function isMember() {
       return signedIn() && exists(memberPath()) && get(memberPath()).data.active == true;
     }
+    function googleAccount() {
+      return signedIn()
+        && request.auth.token.email_verified == true
+        && request.auth.token.firebase.sign_in_provider == 'google.com';
+    }
+    function passPath(serviceId) {
+      return /databases/$(database)/documents/services/$(serviceId)/passes/$(request.auth.uid);
+    }
+    function secretPath(serviceId) {
+      return /databases/$(database)/documents/serviceAccess/$(serviceId);
+    }
+    function hasSundayCode(serviceId) {
+      return googleAccount()
+        && exists(passPath(serviceId))
+        && exists(secretPath(serviceId))
+        && get(passPath(serviceId)).data.code == get(secretPath(serviceId)).data.code;
+    }
+    function canUseService(serviceId) {
+      return isMember() || hasSundayCode(serviceId);
+    }
     function isCurrent(serviceId) {
       return get(/databases/$(database)/documents/settings/current).data.serviceId == serviceId;
     }
     function isOpen(serviceId) {
       return get(/databases/$(database)/documents/services/$(serviceId)).data.open == true;
     }
-    function canWriteStation(stationId) {
-      return isMember()
-        && (get(memberPath()).data.role == 'shared'
-          || (get(memberPath()).data.role == 'lead'
-            && get(memberPath()).data.station == stationId));
+    function canWriteStation(serviceId, stationId) {
+      return (isMember()
+          && (get(memberPath()).data.role == 'shared'
+            || (get(memberPath()).data.role == 'lead'
+              && get(memberPath()).data.station == stationId)))
+        || hasSundayCode(serviceId);
     }
     function validResponse(stationId) {
       let data = request.resource.data;
@@ -30,8 +51,9 @@ service cloud.firestore {
         && data.updatedBy == request.auth.uid
         && data.updatedAt == request.time;
     }
-    function canWriteSetup() {
-      return isMember() && get(memberPath()).data.role in ['shared', 'director'];
+    function canWriteSetup(serviceId) {
+      return (isMember() && get(memberPath()).data.role in ['shared', 'director'])
+        || hasSundayCode(serviceId);
     }
     function validSetup() {
       let data = request.resource.data;
@@ -50,21 +72,39 @@ service cloud.firestore {
       allow list, write: if false;
     }
     match /settings/current {
-      allow get: if isMember();
+      allow get: if googleAccount() || isMember();
       allow list, write: if false;
     }
+    match /serviceAccess/{serviceId} {
+      allow read, write: if false;
+    }
     match /services/{serviceId} {
-      allow get: if isMember() && isCurrent(serviceId);
+      allow get: if canUseService(serviceId) && isCurrent(serviceId);
       allow list, write: if false;
+      match /passes/{uid} {
+        allow get: if googleAccount() && request.auth.uid == uid;
+        allow list, delete: if false;
+        allow create, update: if googleAccount() && request.auth.uid == uid
+          && isCurrent(serviceId) && isOpen(serviceId)
+          && exists(secretPath(serviceId))
+          && request.resource.data.keys().hasOnly(['code', 'updatedAt', 'updatedBy'])
+          && request.resource.data.keys().hasAll(['code', 'updatedAt', 'updatedBy'])
+          && request.resource.data.code is string
+          && request.resource.data.code.size() >= 8
+          && request.resource.data.code.size() <= 32
+          && request.resource.data.code == get(secretPath(serviceId)).data.code
+          && request.resource.data.updatedBy == request.auth.uid
+          && request.resource.data.updatedAt == request.time;
+      }
       match /readiness/{stationId} {
-        allow get, list: if isMember() && isCurrent(serviceId);
-        allow create, update: if canWriteStation(stationId) && isCurrent(serviceId)
+        allow get, list: if canUseService(serviceId) && isCurrent(serviceId);
+        allow create, update: if canWriteStation(serviceId, stationId) && isCurrent(serviceId)
           && isOpen(serviceId) && validResponse(stationId);
         allow delete: if false;
       }
       match /setup/{setupId} {
-        allow get: if setupId == 'pre-service' && isMember() && isCurrent(serviceId);
-        allow create, update: if setupId == 'pre-service' && canWriteSetup()
+        allow get: if setupId == 'pre-service' && canUseService(serviceId) && isCurrent(serviceId);
+        allow create, update: if setupId == 'pre-service' && canWriteSetup(serviceId)
           && isCurrent(serviceId) && isOpen(serviceId) && validSetup();
         allow list, delete: if false;
       }

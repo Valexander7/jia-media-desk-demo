@@ -54,6 +54,8 @@
     .source-links { display:grid; gap:4px; }
     .source-links a { display:flex; align-items:center; min-height:44px; }
     .small-note { font-size:.9rem; }
+    #code-form label { display:block; font-weight:750; margin-bottom:6px; }
+    #sunday-code { width:100%; min-height:48px; border:1px solid #9db49e; border-radius:9px; padding:10px 12px; letter-spacing:.08em; }
     @media (max-width:360px) { .shell { padding-left:10px; padding-right:10px; } header { margin-left:-10px; margin-right:-10px; } .card { padding:14px; } .brand img { width:42px; height:42px; } h1 { font-size:1.5rem; } }
     [hidden] { display:none !important; }
   </style>
@@ -65,12 +67,17 @@
     <div class="banner warn" id="connection" role="status">Live readiness is not connected.</div>
     <section class="card" id="auth-card">
       <h1>Sunday media checklist</h1>
-      <p class="muted">One operator, one phone. Tick what you check; each tick saves online.</p>
+      <p class="muted">One operator, one phone. Use your own Google account and the code given by the Floor Director. Each tick saves online.</p>
       <div class="source-links"><a href="https://drive.google.com/file/d/1SWlV6LEeAKeF2pVnzaVrCRnKNvO9rhD2/view" target="_blank" rel="noopener noreferrer">Open source Program Flow ↗</a></div>
-      <div class="actions"><button id="sign-in" type="button" hidden>Sign in with an approved Google account</button></div>
+      <div class="actions"><button id="sign-in" type="button" hidden>Sign in with Google</button></div>
     </section>
     <p id="message" class="muted" role="status" aria-live="polite" hidden></p>
-    <section class="card" id="service-card" hidden><div class="row"><div><h2 id="service-title">Service</h2><p id="service-note" class="muted" style="margin:0"></p></div><span class="pill unknown" id="sync-pill">Checking</span></div><p class="progress" id="overall-progress"></p></section>
+    <section class="card" id="code-card" hidden>
+      <h2>Enter Sunday code</h2>
+      <p class="muted">This is the service code from the Floor Director, not your Google password. Your Google account and save times will be recorded with checklist changes.</p>
+      <form id="code-form"><label for="sunday-code">Sunday code</label><input id="sunday-code" name="code" type="password" minlength="8" maxlength="32" autocomplete="off" autocapitalize="off" spellcheck="false" required><div class="actions"><button id="show-code" class="secondary" type="button" aria-pressed="false">Show code</button><button id="join-service" type="submit">Open checklist</button></div></form>
+    </section>
+    <section class="card" id="service-card" hidden><div class="row"><div><h2 id="service-title">Service</h2><p id="service-note" class="muted" style="margin:0"></p></div><span class="pill unknown" id="sync-pill">Checking</span></div><p class="progress" id="overall-progress"></p><p id="account-note" class="muted small-note" style="margin:10px 0 0"></p></section>
     <section class="card" id="setup-card" hidden>
       <div class="row"><div><h2>1 · Church setup</h2><p class="muted" style="margin:0">Before pre-worship · 7:20–7:30</p></div><span class="pill unknown" id="setup-pill">Checking</span></div>
       <p class="muted" id="setup-progress" style="margin:14px 0 0"></p>
@@ -85,6 +92,6 @@
     <div class="actions"><button id="sign-out" class="secondary" type="button" hidden>Sign out</button></div>
   </div>
   <script src="live-config.js?v=3"></script>
-  <script type="module" src="live.js?v=8"></script>
+  <script type="module" src="live.js?v=9"></script>
 </body>
 </html>

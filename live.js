@@ -50,15 +50,27 @@ if (!config || !config.apiKey || !config.authDomain || !config.projectId || !con
       pointerFresh = serviceFresh = readinessFresh = setupFresh = false;
     }
     function connected() { return Boolean(user && member && serviceId && service?.open && pointerFresh && serviceFresh && readinessFresh && setupFresh && navigator.onLine); }
-    function stamp(value) {
+    function accountId(uid) { return typeof uid==="string"?uid.slice(0,8):"unknown"; }
+    function stamp(value, uid) {
       if (!value?.toDate) return "No response saved";
-      return "Updated " + new Intl.DateTimeFormat(undefined,{dateStyle:"medium",timeStyle:"short"}).format(value.toDate());
+      return "Updated " + new Intl.DateTimeFormat(undefined,{dateStyle:"medium",timeStyle:"short"}).format(value.toDate()) + " · account " + accountId(uid);
     }
     function setMessage(text, error=false) { $("message").textContent=text; $("message").className=error?"error":"muted"; $("message").hidden=!text; }
+    function showCodePrompt(text, error=false) {
+      $("code-card").hidden=false;
+      setMessage(text,error);
+      render();
+    }
+    function serviceError(error, message) {
+      if (member?.viaCode && error.code==="permission-denied") {
+        clearListeners(); member=null;
+        showCodePrompt("Sunday access has changed. Enter the current code again, and confirm go-signals directly until this page reconnects.",true);
+      } else { setMessage(message+error.message,true); render(); }
+    }
     function render() {
       const live=connected();
       $("connection").classList.toggle("warn",!live);
-      $("connection").textContent=busy?"Saving your check. Please wait…":live?"Connected. Saved responses are shown below.":"Connection unavailable or unverified. Confirm go-signals directly with the Floor Director.";
+      $("connection").textContent=busy?"Checking or saving. Please wait…":live?"Connected. Saved responses are shown below.":user&&!member?"Signed in. Enter the current Sunday code to open the live checklist.":"Connection unavailable or unverified. Confirm go-signals directly with the Floor Director.";
       $("service-card").hidden=!member || !service;
       $("setup-card").hidden=!member || !service;
       $("operator-card").hidden=!member || member.role!=="shared" || !service;
@@ -67,6 +79,7 @@ if (!config || !config.apiKey || !config.authDomain || !config.projectId || !con
       if (!service) return;
       $("service-title").textContent="Service: " + (service.date || serviceId);
       $("service-note").textContent=service.open?"Current service selected by the team owner.":"This service is closed. No changes can be saved.";
+      $("account-note").textContent=`Your Google account: ${user.email || "email unavailable"} · ID ${accountId(user.uid)}. If a response shows a different account ID, confirm it with the Floor Director.`;
       $("sync-pill").textContent=live?"Live":"Unverified";
       $("sync-pill").className="pill "+(live?"ready":"unknown");
       const setupChecks=Array.isArray(setup?.checks)&&setup.checks.length===setupItems.length?setup.checks:[false,false,false];
@@ -75,7 +88,7 @@ if (!config || !config.apiKey || !config.authDomain || !config.projectId || !con
       $("overall-progress").textContent=live?`Church setup ${setup?.complete?"Complete":"Waiting"} · ${completedChecks} of 18 checks · ${readyCount} of 5 stations Ready`:"Progress cannot be verified.";
       $("setup-pill").textContent=live?(setup?.complete?"Complete":"Waiting"):"Unverified";
       $("setup-pill").className="pill "+(live?(setup?.complete?"ready":""):"unknown");
-      $("setup-progress").textContent=live?`${setupChecks.filter(Boolean).length} of ${setupItems.length} checks saved · ${stamp(setup?.updatedAt)}`:"Setup status cannot be verified right now.";
+      $("setup-progress").textContent=live?`${setupChecks.filter(Boolean).length} of ${setupItems.length} checks saved · ${stamp(setup?.updatedAt,setup?.updatedBy)}`:"Setup status cannot be verified right now.";
       $("setup-checks").replaceChildren(...setupItems.map((label,i)=>{
         const row=document.createElement("label"); row.className="check";
         const input=document.createElement("input"); input.type="checkbox"; input.checked=setupChecks[i]===true;
@@ -94,7 +107,7 @@ if (!config || !config.apiKey || !config.authDomain || !config.projectId || !con
           const title=document.createElement("h2"); title.textContent=`${index+1}. ${station.name}`;
           const pill=document.createElement("span"); pill.className="pill "+(live?(saved?.ready?"ready":""):"unknown"); pill.textContent=live?(saved?.ready?"Ready":"Waiting"):"Unverified";
           head.append(title,pill);
-          const update=document.createElement("p"); update.className="muted small-note"; update.textContent=live?stamp(saved?.updatedAt):"Response cannot be verified.";
+          const update=document.createElement("p"); update.className="muted small-note"; update.textContent=live?stamp(saved?.updatedAt,saved?.updatedBy):"Response cannot be verified.";
           const list=document.createElement("div"); list.className="checks";
           list.append(...station.checks.map((label,i)=>{
             const row=document.createElement("label"); row.className="check";
@@ -119,7 +132,7 @@ if (!config || !config.apiKey || !config.authDomain || !config.projectId || !con
         $("station-title").textContent=station.name;
         $("station-pill").textContent=live?(saved?.ready?"Ready":"Waiting"):"Unverified";
         $("station-pill").className="pill "+(live?(saved?.ready?"ready":""):"unknown");
-        $("station-update").textContent=live?stamp(saved?.updatedAt):"Response cannot be verified right now.";
+        $("station-update").textContent=live?stamp(saved?.updatedAt,saved?.updatedBy):"Response cannot be verified right now.";
         $("checks").replaceChildren(...station.checks.map((label,i)=>{
           const row=document.createElement("label"); row.className="check";
           const input=document.createElement("input"); input.type="checkbox"; input.checked=checks[i]===true;
@@ -138,7 +151,7 @@ if (!config || !config.apiKey || !config.authDomain || !config.projectId || !con
           const label=document.createElement("div");
           const name=document.createElement("strong"); name.textContent=s.name;
           const detail=document.createElement("div"); detail.className="muted";
-          detail.textContent=live?stamp(readiness[s.id]?.updatedAt):"Connection unverified";
+          detail.textContent=live?stamp(readiness[s.id]?.updatedAt,readiness[s.id]?.updatedBy):"Connection unverified";
           label.append(name,detail);
           const pill=document.createElement("span");
           pill.className="pill "+(live?(readiness[s.id]?.ready?"ready":""):"unknown");
@@ -158,17 +171,17 @@ if (!config || !config.apiKey || !config.authDomain || !config.projectId || !con
         serviceFresh=!snap.metadata.fromCache && !snap.metadata.hasPendingWrites;
         if (!service) setMessage("The selected service does not exist. Ask the team owner to check setup.",true);
         render();
-      },error=>{ serviceFresh=false; setMessage("Could not read the current service: "+error.message,true); render(); });
+      },error=>{ serviceFresh=false; serviceError(error,"Could not read the current service: "); });
       stopReadiness=dbApi.onSnapshot(dbApi.collection(db,"services",id,"readiness"),{includeMetadataChanges:true},snap=>{
         readiness={}; snap.forEach(item=>{ readiness[item.id]=item.data(); });
         readinessFresh=!snap.metadata.fromCache && !snap.metadata.hasPendingWrites;
         render();
-      },error=>{ readinessFresh=false; setMessage("Could not read station responses: "+error.message,true); render(); });
+      },error=>{ readinessFresh=false; serviceError(error,"Could not read station responses: "); });
       stopSetup=dbApi.onSnapshot(dbApi.doc(db,"services",id,"setup","pre-service"),{includeMetadataChanges:true},snap=>{
         setup=snap.exists()?snap.data():null;
         setupFresh=!snap.metadata.fromCache && !snap.metadata.hasPendingWrites;
         render();
-      },error=>{ setupFresh=false; setMessage("Could not read the pre-service checklist: "+error.message,true); render(); });
+      },error=>{ setupFresh=false; serviceError(error,"Could not read the pre-service checklist: "); });
       render();
     }
     async function saveSetup(checks,complete) {
@@ -180,7 +193,7 @@ if (!config || !config.apiKey || !config.authDomain || !config.projectId || !con
         });
         setMessage("Pre-service checklist saved for this service.");
       } catch(error) {
-        setMessage("Could not save the pre-service checklist. Tell the Floor Director. "+error.message,true);
+        serviceError(error,"Could not save the pre-service checklist. Tell the Floor Director. ");
       } finally { busy=false; render(); }
     }
     async function save(stationId,checks,ready) {
@@ -193,7 +206,7 @@ if (!config || !config.apiKey || !config.authDomain || !config.projectId || !con
         });
         setMessage("Response saved for this service.");
       } catch(error) {
-        setMessage("Could not save. Confirm your response with the Floor Director. "+error.message,true);
+        serviceError(error,"Could not save. Confirm your response with the Floor Director. ");
       } finally { busy=false; render(); }
     }
     function changeStationCheck(event) {
@@ -233,21 +246,59 @@ if (!config || !config.apiKey || !config.authDomain || !config.projectId || !con
       try { await authApi.signInWithRedirect(auth,provider); }
       catch(error) { setMessage("Sign-in failed: "+error.message,true); }
     });
+    $("show-code").addEventListener("click",()=>{
+      const shown=$("sunday-code").type==="text";
+      $("sunday-code").type=shown?"password":"text";
+      $("show-code").textContent=shown?"Show code":"Hide code";
+      $("show-code").setAttribute("aria-pressed",String(!shown));
+    });
+    $("code-form").addEventListener("submit",async event=>{
+      event.preventDefault();
+      if (!user || busy) return;
+      if (!navigator.onLine) { setMessage("Connect to the internet before entering the Sunday code.",true); return; }
+      const code=$("sunday-code").value.trim();
+      if (code.length<8 || code.length>32) { setMessage("Check the Sunday code and try again.",true); return; }
+      busy=true; $("join-service").disabled=true; render();
+      try {
+        const pointer=await dbApi.getDocFromServer(dbApi.doc(db,"settings","current"));
+        const id=pointer.exists()?pointer.data().serviceId:null;
+        if (typeof id!=="string" || !/^\d{4}-\d{2}-\d{2}$/.test(id)) throw new Error("No current service is selected.");
+        await dbApi.setDoc(dbApi.doc(db,"services",id,"passes",user.uid),{
+          code, updatedAt:dbApi.serverTimestamp(), updatedBy:user.uid
+        });
+        $("sunday-code").value="";
+        location.reload();
+      } catch(error) {
+        setMessage("Code not accepted, or the service is not open. Check with the Floor Director and try again.",true);
+      } finally { busy=false; $("join-service").disabled=false; render(); }
+    });
     $("sign-out").addEventListener("click",()=>authApi.signOut(auth));
     window.addEventListener("online",render);
     window.addEventListener("offline",render);
     authApi.onAuthStateChanged(auth,async nextUser=>{
       clearListeners(); user=nextUser; member=null;
+      $("code-card").hidden=true; $("sunday-code").value=""; $("sunday-code").type="password";
+      $("show-code").textContent="Show code"; $("show-code").setAttribute("aria-pressed","false");
       $("auth-card").hidden=Boolean(user); $("sign-in").hidden=Boolean(user); $("sign-out").hidden=!user;
-      if (!user) { setMessage("Sign in with a Google account approved by the team owner to view the current service."); render(); return; }
+      if (!user) { setMessage("Sign in with any Google account, then enter the current Sunday code. Do not use the JIA Media password."); render(); return; }
       try {
         const snap=await dbApi.getDocFromServer(dbApi.doc(db,"members",user.uid));
         const data=snap.exists()?snap.data():null;
-        if (!data?.active || !["lead","director","shared"].includes(data.role) || (data.role==="lead" && !stations.some(s=>s.id===data.station))) {
-          setMessage(`This Google account is not approved for the Media checklist: ${user.email || "email unavailable"}. Ask the team owner to grant access to this account. Do not share your password.`,true); render(); return;
+        if (data?.active && ["lead","director","shared"].includes(data.role) && (data.role!=="lead" || stations.some(s=>s.id===data.station))) {
+          member=data;
+        } else {
+          const pointer=await dbApi.getDocFromServer(dbApi.doc(db,"settings","current"));
+          const id=pointer.exists()?pointer.data().serviceId:null;
+          if (typeof id!=="string" || !/^\d{4}-\d{2}-\d{2}$/.test(id)) { showCodePrompt("No current service is selected. Ask the Floor Director before entering a code.",true); return; }
+          const pass=await dbApi.getDocFromServer(dbApi.doc(db,"services",id,"passes",user.uid));
+          if (!pass.exists()) { showCodePrompt(`Signed in as ${user.email || "your Google account"}. Enter the current Sunday code to continue.`); return; }
+          try {
+            const verified=await dbApi.getDocFromServer(dbApi.doc(db,"services",id));
+            if (!verified.exists()) throw new Error("Service missing");
+          } catch (_) { showCodePrompt("The Sunday code has changed or expired. Enter the current code to continue.",true); return; }
+          member={role:"shared",viaCode:true};
         }
-        member=data;
-        setMessage(data.role==="shared"?"":data.role==="director"?"Floor Director view open.":"Your station view is open.");
+        setMessage(member.viaCode?`Signed in as ${user.email || "your Google account"}. Your changes are saved with this account and time.`:member.role==="shared"?"":member.role==="director"?"Floor Director view open.":"Your station view is open.");
         stopPointer=dbApi.onSnapshot(dbApi.doc(db,"settings","current"),{includeMetadataChanges:true},snap=>{
           pointerFresh=snap.exists() && !snap.metadata.fromCache && !snap.metadata.hasPendingWrites;
           const id=snap.exists()?snap.data().serviceId:null;
@@ -256,7 +307,7 @@ if (!config || !config.apiKey || !config.authDomain || !config.projectId || !con
             serviceId=null; service=null; setup=null; serviceFresh=readinessFresh=setupFresh=false;
             setMessage("No current service is configured. Ask the team owner to select one.",true);
           } else if (id!==serviceId) {
-            setMessage(member.role==="shared"?"":member.role==="director"?"Floor Director view open.":"Your station view is open.");
+            setMessage(member.viaCode?`Signed in as ${user.email || "your Google account"}. Your changes are saved with this account and time.`:member.role==="shared"?"":member.role==="director"?"Floor Director view open.":"Your station view is open.");
             listenForService(id);
           }
           render();
