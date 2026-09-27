@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>JIA Alabang · Program Team workspace</title>
+  <style>
+    :root { color-scheme:light; --green:#184829; --ink:#102a18; --muted:#425649; --line:#cbd8ca; --paper:#f4f8f2; --sage:#e0f2d9; --amber:#754600; }
+    * { box-sizing:border-box; }
+    html { -webkit-text-size-adjust:100%; }
+    body { margin:0; background:var(--paper); color:var(--ink); font:16px/1.45 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
+    button,input,select,textarea { font:inherit; }
+    button { cursor:pointer; border:0; border-radius:10px; min-height:44px; padding:10px 14px; font-weight:750; background:var(--green); color:white; }
+    button.secondary { background:white; color:var(--green); border:1px solid #9db49e; }
+    button:disabled { opacity:.55; cursor:not-allowed; }
+    button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,a:focus-visible,summary:focus-visible { outline:3px solid #ffba3b; outline-offset:3px; }
+    a { color:#135b38; font-weight:750; }
+    .shell { max-width:1100px; margin:auto; padding:0 12px 50px; }
+    header { display:flex; align-items:center; justify-content:space-between; gap:12px; margin:0 -12px 12px; padding:10px 14px; background:var(--green); color:white; }
+    header .brand { display:flex; gap:10px; align-items:center; min-width:0; }
+    header img { width:48px; height:48px; object-fit:contain; }
+    header strong,header small { display:block; line-height:1.2; }
+    header small { color:#d8ebd7; }
+    header a { color:white; text-align:right; font-size:.9rem; }
+    .banner { padding:12px 14px; border-radius:10px; background:#714000; color:white; font-weight:750; }
+    .hero { padding:22px 4px 10px; }
+    h1,h2,h3,p { margin-top:0; }
+    h1 { font-size:clamp(1.8rem,5vw,2.4rem); line-height:1.12; margin-bottom:8px; }
+    h2 { font-size:1.3rem; margin-bottom:5px; }
+    h3 { font-size:1.05rem; margin:0; }
+    .muted { color:var(--muted); }
+    .grid { display:grid; gap:12px; align-items:start; }
+    .grid > div { min-width:0; }
+    .card { background:white; border:1px solid var(--line); border-radius:13px; padding:16px; margin-top:12px; min-width:0; }
+    .row { display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; }
+    .source { display:inline-flex; min-height:44px; align-items:center; }
+    .form-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; }
+    label.field { display:grid; gap:4px; color:var(--muted); font-size:.9rem; font-weight:700; }
+    label.field.wide { grid-column:1/-1; }
+    input,select,textarea { width:100%; min-height:44px; padding:9px 10px; border:1px solid #9db49e; border-radius:8px; background:white; color:var(--ink); }
+    textarea { min-height:65px; resize:vertical; }
+    .actions { display:flex; gap:8px; flex-wrap:wrap; margin-top:12px; }
+    .actions button { flex:1 1 130px; }
+    .calendar-head { display:flex; align-items:center; justify-content:space-between; gap:8px; margin:14px 0 9px; }
+    .calendar-head button { min-width:44px; }
+    .calendar { display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); gap:4px; }
+    .calendar .weekday { text-align:center; font-size:.76rem; color:var(--muted); font-weight:750; }
+    .day { border:1px solid var(--line); border-radius:7px; min-height:49px; padding:4px; font-size:.8rem; background:white; color:var(--ink); text-align:left; font-weight:700; }
+    .day.has-event { background:var(--sage); border-color:#80ac81; }
+    .day.selected { outline:3px solid #eab650; }
+    .day .dot { display:block; font-size:.64rem; font-weight:650; line-height:1.1; }
+    .event { border-top:1px solid var(--line); padding:11px 0; }
+    .event:first-child { border-top:0; }
+    .event p { margin:3px 0; }
+    .tag { display:inline-block; border-radius:999px; padding:3px 9px; background:#edf0ef; color:var(--muted); font-size:.78rem; font-weight:750; }
+    .tag.ready { background:var(--sage); color:var(--green); }
+    .tag.warn { background:#fff1d5; color:var(--amber); }
+    .program-card { border:1px solid var(--line); border-radius:10px; margin:10px 0; background:#fff; overflow:hidden; }
+    .program-head { display:flex; gap:8px; align-items:center; padding:10px; }
+    .drag { padding:7px; min-width:44px; min-height:48px; touch-action:none; user-select:none; background:#e0f2d9; color:var(--green); font-size:1.3rem; }
+    .program-title { flex:1; min-width:0; }
+    .program-title small { display:block; color:var(--muted); }
+    .move { display:flex; gap:4px; }
+    .move button { min-width:38px; min-height:40px; padding:4px; }
+    details { border-top:1px solid var(--line); padding:9px 12px 12px; }
+    summary { cursor:pointer; font-weight:750; color:#135b38; min-height:35px; }
+    .checks { display:flex; gap:9px; flex-wrap:wrap; margin-top:12px; }
+    .checks label { display:flex; align-items:center; gap:6px; min-height:44px; padding:4px 8px; border:1px solid var(--line); border-radius:8px; }
+    .checks input { width:20px; height:20px; min-height:0; accent-color:var(--green); }
+    .small { font-size:.88rem; }
+    .empty { padding:15px; border:1px dashed var(--line); border-radius:8px; color:var(--muted); }
+    .dragging { opacity:.65; box-shadow:0 4px 14px #18482944; }
+    .footer { margin-top:22px; color:var(--muted); font-size:.85rem; }
+    @media(min-width:760px) { .grid { grid-template-columns:minmax(280px, .8fr) minmax(0,1.2fr); } }
+    @media(max-width:380px) { .form-grid { grid-template-columns:1fr; } .move button { min-width:35px; } .day { min-height:43px; } }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <header><div class="brand"><img src="jia-logo-green.png" alt="JIA logo" width="48" height="48"><div><strong>JIA Alabang</strong><small>Media Support · Program Team</small></div></div><a href="live.html">Media checklist ↗</a></header>
+    <div class="banner" role="status">Program workspace preview. Sample entries and edits stay on this device only. They do not update Drive or notify the team.</div>
+    <div class="hero"><h1>Plan the Sunday flow together</h1><p class="muted">Put each segment in order, name the handoff, and check what is ready before it goes in front. The current Program Flow and run sheet in Drive remain the official sources.</p><div class="row"><a class="source" href="https://drive.google.com/file/d/1SWlV6LEeAKeF2pVnzaVrCRnKNvO9rhD2/view" target="_blank" rel="noopener noreferrer">Open source Program Flow ↗</a><a class="source" href="https://docs.google.com/spreadsheets/d/1ItieZgLx6cOteA-jBNAFiQaqH71Zr6w1y_Wyo9wKMaw/edit" target="_blank" rel="noopener noreferrer">Open current run sheet ↗</a></div></div>
+    <div class="grid">
+      <div>
+        <section class="card"><div class="row"><div><h2>Calendar &amp; upcoming</h2><p class="muted small">Choose a date to filter the list. Birthdays shown here are fictional.</p></div></div><div class="calendar-head"><button type="button" class="secondary" id="prev-month" aria-label="Previous month">‹</button><strong id="month-label"></strong><button type="button" class="secondary" id="next-month" aria-label="Next month">›</button></div><div class="calendar" id="calendar"></div><div class="row" style="margin-top:12px"><strong id="event-heading">Upcoming items</strong><button type="button" class="secondary" id="show-all">Show all</button></div><div id="events"></div></section>
+        <section class="card"><h2>Add calendar item</h2><p class="muted small">Record when it should be mentioned or shown. No automatic announcement is sent. Use fictional names in this public preview.</p><form id="event-form" class="form-grid"><label class="field">Date<input name="date" type="date" required></label><label class="field">Type<select name="type"><option>Event</option><option>Birthday greeting</option><option>Announcement</option><option>Reminder</option></select></label><label class="field wide">Title<input name="title" maxlength="80" required placeholder="e.g. Volunteer orientation"></label><label class="field wide">When to introduce<input name="intro" maxlength="100" placeholder="e.g. Onsite announcements, 10:35–10:45"></label><label class="field wide">Who will confirm it<input name="owner" maxlength="80" placeholder="e.g. Program Team lead"></label><div class="actions" style="grid-column:1/-1"><button type="submit">Add item</button></div></form></section>
+      </div>
+      <div>
+        <section class="card"><div class="row"><div><h2>Sunday program</h2><p class="muted small">Fictional service · <span id="service-date-label"></span>. Drag ☰ to reorder, or use arrows on a phone.</p></div><span class="tag warn" id="readiness">Draft</span></div><label class="field">Draft service date<input id="service-date" type="date"></label><p class="muted small">Changing the date keeps this draft’s blocks. Calendar items can be added to the program only when their date matches.</p><p id="missing" class="muted small" style="margin-top:12px"></p><div id="blocks"></div><p class="muted small">Each block has its own people, asset, and cue checks. Set only the checks that block needs; items still waiting stay visible.</p></section>
+        <section class="card"><h2>Add program block</h2><form id="block-form" class="form-grid"><label class="field">Time<input name="time" type="time" required></label><label class="field">Kind<select name="kind"><option>Service</option><option>Worship</option><option>Message</option><option>Announcement</option><option>Birthday</option><option>Media cue</option><option>Other</option></select></label><label class="field wide">Block title<input name="title" maxlength="80" required placeholder="e.g. Onsite announcements"></label><label class="field wide">Person / team to coordinate with<input name="owner" maxlength="80" placeholder="e.g. Church Narrator"></label><div class="actions" style="grid-column:1/-1"><button type="submit">Add block</button></div></form></section>
+        <section class="card"><h2>Before calling it ready</h2><p class="muted small">Review waiting blocks with the Program Team and the people named in each handoff. Check the current run sheet for the final order. This preview does not give a live go-signal.</p><a class="source" href="https://drive.google.com/file/d/1SWlV6LEeAKeF2pVnzaVrCRnKNvO9rhD2/view" target="_blank" rel="noopener noreferrer">Open source Program Flow ↗</a><div class="actions"><button id="reset" type="button" class="secondary">Reset sample workspace</button></div></section>
+      </div>
+    </div>
+    <p class="footer">Sample-only local workspace · no account connection or team sync · Program Flow checked September 27, 2026.</p>
+  </div>
+  <script src="program.js"></script>
+</body>
+</html>
