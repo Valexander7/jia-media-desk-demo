@@ -4,6 +4,11 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>JIA Alabang · Media checklist</title>
+  <script>
+    if (location.hostname === "valexander7.github.io" || location.hostname === "jia-media-desk.web.app") {
+      location.replace("https://jia-media-desk.firebaseapp.com/live.html" + location.search);
+    }
+  </script>
   <style>
     :root { color-scheme:light; --ink:#102a18; --muted:#425649; --line:#cbd8ca; --paper:#f4f8f2; --green:#184829; --sage:#e0f2d9; --amber:#714000; }
     * { box-sizing:border-box; }
@@ -79,6 +84,6 @@
     <div class="actions"><button id="sign-out" class="secondary" type="button" hidden>Sign out</button></div>
   </div>
   <script src="live-config.js?v=3"></script>
-  <script type="module" src="live.js?v=6"></script>
+  <script type="module" src="live.js?v=7"></script>
 </body>
 </html>

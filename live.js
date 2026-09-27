@@ -30,6 +30,9 @@ if (!config || !config.apiKey || !config.authDomain || !config.projectId || !con
     const auth = authApi.getAuth(app);
     const db = dbApi.getFirestore(app);
     const provider = new authApi.GoogleAuthProvider();
+    authApi.getRedirectResult(auth).catch(error=>{
+      setMessage("Google sign-in did not finish. Open this page in Safari or Chrome and try again. "+error.message,true);
+    });
     let user = null, member = null, serviceId = null, service = null;
     let readiness = {}, setup = null, pointerFresh = false, serviceFresh = false, readinessFresh = false, setupFresh = false, busy = false;
     let stopPointer = null, stopService = null, stopReadiness = null, stopSetup = null;
@@ -227,7 +230,7 @@ if (!config || !config.apiKey || !config.authDomain || !config.projectId || !con
       if (current?.ready || checks.every(Boolean)) save(station.id,checks,!current?.ready);
     });
     $("sign-in").addEventListener("click",async()=>{
-      try { await authApi.signInWithPopup(auth,provider); }
+      try { await authApi.signInWithRedirect(auth,provider); }
       catch(error) { setMessage("Sign-in failed: "+error.message,true); }
     });
     $("sign-out").addEventListener("click",()=>authApi.signOut(auth));
