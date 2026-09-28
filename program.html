@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>JIA Alabang · Program Team workspace</title>
+  <title>JIA Alabang · Program Team preview</title>
   <style>
     :root { color-scheme:light; --green:#184829; --ink:#102a18; --muted:#425649; --line:#cbd8ca; --paper:#f4f8f2; --sage:#e0f2d9; --amber:#754600; }
     * { box-sizing:border-box; }
@@ -77,12 +77,12 @@
 </head>
 <body>
   <div class="shell">
-    <header><div class="brand"><img src="jia-logo-green.png" alt="JIA logo" width="48" height="48"><div><strong>JIA Alabang</strong><small>Media Support · Program Team</small></div></div><a href="live.html">Media checklist ↗</a></header>
-    <div class="banner" role="status">Program workspace preview. Sample entries and edits stay on this device only. They do not update Drive or notify the team.</div>
+    <header><div class="brand"><img src="jia-logo-green.png" alt="JIA logo" width="48" height="48"><div><strong>JIA Alabang</strong><small>Media Support · Program Team preview</small></div></div><a href="live.html">Checklist pilot ↗</a></header>
+    <div class="banner" role="status"><strong>PREVIEW ONLY · Fictional sample data.</strong> This is not the live calendar or approved Sunday order. Edits stay on this device; they do not update Drive or alert the team.</div>
     <div class="hero"><h1>Plan the Sunday flow together</h1><p class="muted">Put each segment in order, name the handoff, and check what is ready before it goes in front. The current Program Flow and run sheet in Drive remain the official sources.</p><div class="row"><a class="source" href="https://drive.google.com/file/d/1SWlV6LEeAKeF2pVnzaVrCRnKNvO9rhD2/view" target="_blank" rel="noopener noreferrer">Open source Program Flow ↗</a><a class="source" href="https://docs.google.com/spreadsheets/d/1ItieZgLx6cOteA-jBNAFiQaqH71Zr6w1y_Wyo9wKMaw/edit" target="_blank" rel="noopener noreferrer">Open current run sheet ↗</a></div></div>
     <div class="grid">
       <div>
-        <section class="card"><div class="row"><div><h2>Calendar &amp; upcoming</h2><p class="muted small">Choose a date to filter the list. Birthdays shown here are fictional.</p></div></div><div class="calendar-head"><button type="button" class="secondary" id="prev-month" aria-label="Previous month">‹</button><strong id="month-label"></strong><button type="button" class="secondary" id="next-month" aria-label="Next month">›</button></div><div class="calendar" id="calendar"></div><div class="row" style="margin-top:12px"><strong id="event-heading">Upcoming items</strong><button type="button" class="secondary" id="show-all">Show all</button></div><div id="events"></div></section>
+        <section class="card"><div class="row"><div><h2>Calendar &amp; upcoming</h2><p class="muted small">Choose a date to filter the list. Use fictional entries only; do not add real birthdays to this public preview.</p></div></div><div class="calendar-head"><button type="button" class="secondary" id="prev-month" aria-label="Previous month">‹</button><strong id="month-label"></strong><button type="button" class="secondary" id="next-month" aria-label="Next month">›</button></div><div class="calendar" id="calendar"></div><div class="row" style="margin-top:12px"><strong id="event-heading">Upcoming items</strong><button type="button" class="secondary" id="show-all">Show all</button></div><div id="events"></div></section>
         <section class="card"><h2>Add calendar item</h2><p class="muted small">Record when it should be mentioned or shown. No automatic announcement is sent. Use fictional names in this public preview.</p><form id="event-form" class="form-grid"><label class="field">Date<input name="date" type="date" required></label><label class="field">Type<select name="type"><option>Event</option><option>Birthday greeting</option><option>Announcement</option><option>Reminder</option></select></label><label class="field wide">Title<input name="title" maxlength="80" required placeholder="e.g. Volunteer orientation"></label><label class="field wide">When to introduce<input name="intro" maxlength="100" placeholder="e.g. Onsite announcements, 10:35–10:45"></label><label class="field wide">Who will confirm it<input name="owner" maxlength="80" placeholder="e.g. Program Team lead"></label><div class="actions" style="grid-column:1/-1"><button type="submit">Add item</button></div></form></section>
       </div>
       <div>
@@ -91,7 +91,7 @@
         <section class="card"><h2>Before calling it ready</h2><p class="muted small">Review waiting blocks with the Program Team and the people named in each handoff. Check the current run sheet for the final order. This preview does not give a live go-signal.</p><a class="source" href="https://drive.google.com/file/d/1SWlV6LEeAKeF2pVnzaVrCRnKNvO9rhD2/view" target="_blank" rel="noopener noreferrer">Open source Program Flow ↗</a><div class="actions"><button id="reset" type="button" class="secondary">Reset sample workspace</button></div></section>
       </div>
     </div>
-    <p class="footer">Sample-only local workspace · no account connection or team sync · Program Flow checked September 27, 2026.</p>
+    <p class="footer">PREVIEW ONLY · Fictional entries · no account connection or team sync · not an approved Sunday program.</p>
   </div>
   <script src="program.js"></script>
 </body>

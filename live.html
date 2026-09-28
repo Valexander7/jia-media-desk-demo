@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>JIA Alabang · Media checklist</title>
+  <title>JIA Alabang · Media checklist pilot</title>
   <script>
     if (location.hostname === "valexander7.github.io" || location.hostname === "jia-media-desk.web.app") {
       location.replace("https://jia-media-desk.firebaseapp.com/live.html" + location.search);
@@ -29,6 +29,8 @@
     header a { color:white; font-size:.85rem; text-align:right; }
     .banner { background:var(--green); color:white; padding:12px 14px; border-radius:10px; font-weight:750; }
     .banner.warn { background:#714000; }
+    .pilot-note { background:#fff1d5; color:#5d3600; border:1px solid #ddb36c; }
+    .pilot-note a { color:#5d3600; }
     .card { background:white; border:1px solid var(--line); border-radius:12px; padding:16px; margin-top:12px; }
     h1,h2,p { margin-top:0; }
     h1 { font-size:1.65rem; line-height:1.15; margin-bottom:8px; }
@@ -62,8 +64,9 @@
 </head>
 <body>
   <div class="shell">
-    <header><div class="brand"><img src="jia-logo-green.png" alt="JIA logo" width="48" height="48"><div><strong>JIA Alabang</strong><small>Media checklist</small></div></div><a href="index.html">Sample demo</a></header>
-    <div class="card"><div class="row"><div><strong>Program Team workspace</strong><div class="muted small-note">Sample calendar and reorderable Sunday flow. Local preview only.</div></div><a href="program.html">Open Program workspace ↗</a></div></div>
+    <header><div class="brand"><img src="jia-logo-green.png" alt="JIA logo" width="48" height="48"><div><strong>JIA Alabang</strong><small>Media checklist · LIVE PILOT</small></div></div><a href="index.html">Demo</a></header>
+    <div class="banner pilot-note" role="note"><strong>LIVE PILOT · Trial version.</strong> Use the <a href="https://drive.google.com/file/d/1SWlV6LEeAKeF2pVnzaVrCRnKNvO9rhD2/view" target="_blank" rel="noopener noreferrer">Drive Program Flow</a> as the instruction source. The Floor Director confirms every actual go-signal.</div>
+    <div class="card"><div class="row"><div><strong>Program Team preview</strong><div class="muted small-note">Sample calendar and Sunday flow · edits stay on this device.</div></div><a href="program.html">Open preview ↗</a></div></div>
     <div class="banner warn" id="connection" role="status">Live readiness is not connected.</div>
     <section class="card" id="auth-card">
       <h1>Sunday media checklist</h1>
