@@ -13,23 +13,16 @@
   <link rel="apple-touch-icon" href="jia-logo-green.png">
   <meta name="color-scheme" content="light">
   <title>JIA Media Desk · Interactive demo</title>
+  <link rel="stylesheet" href="jia.css?v=1">
   <style>
-    :root { --ink:#122a28; --muted:#526661; --line:#d9e3dd; --paper:#f5f7f1; --white:#fff; --green:#17654d; --green-soft:#e6f4eb; --amber:#8a5200; --amber-soft:#fff1d5; --blue:#114b6a; --blue-soft:#e5f2f8; --shadow:0 12px 32px rgba(15,44,33,.08); }
-    * { box-sizing:border-box; }
+    :root { --white:#fff; --green-soft:var(--sage); --blue:var(--green-mid); --blue-soft:var(--sage); --shadow:0 12px 32px rgba(15,44,33,.08); }
     html { scroll-behavior:smooth; }
-    body { margin:0; background:var(--paper); color:var(--ink); font:16px/1.5 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
-    button,input,select { font:inherit; }
     button,select { cursor:pointer; }
     a { color:var(--blue); text-underline-offset:3px; }
-    a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible { outline:3px solid #ffba3b; outline-offset:3px; }
-    .shell { max-width:1180px; margin:auto; padding:0 18px 70px; }
-    .top { display:flex; align-items:center; justify-content:space-between; gap:16px; padding:22px 0 16px; }
-    .brand { display:flex; align-items:center; gap:12px; min-width:0; }
-    .mark { display:grid; place-items:center; width:42px; height:42px; border-radius:12px; color:white; background:var(--ink); font-weight:850; letter-spacing:-.05em; }
-    .brand strong { display:block; font-size:1.04rem; }
-    .brand small { display:block; color:var(--muted); font-size:.82rem; }
-    .reset { border:1px solid var(--line); background:white; color:var(--ink); border-radius:11px; padding:10px 14px; font-weight:700; }
-    .banner { position:sticky; top:0; z-index:10; background:#173a32; color:white; padding:10px 16px; border-radius:11px; font-size:.89rem; font-weight:700; box-shadow:var(--shadow); }
+    .shell { max-width:1180px; margin:auto; padding:14px 18px 70px; }
+    button { min-height:0; padding:0; border-radius:0; background:none; color:inherit; font-weight:inherit; }
+    .reset { border:1px solid var(--sage); background:transparent; color:white; border-radius:10px; padding:8px 12px; font-weight:700; font-size:.85rem; }
+    .banner { position:sticky; top:0; z-index:10; background:var(--near-black); color:white; padding:10px 16px; border-radius:11px; font-size:.89rem; font-weight:700; box-shadow:var(--shadow); }
     .banner a { color:white; text-decoration-thickness:2px; }
     .tabs { display:flex; gap:7px; margin:20px 0; padding:5px; background:#e8eee8; border-radius:14px; width:max-content; max-width:100%; }
     .tab { border:0; border-radius:10px; padding:10px 19px; background:transparent; color:#38534b; font-weight:800; white-space:nowrap; }
@@ -37,9 +30,7 @@
     .view[hidden] { display:none !important; }
     .hero { display:grid; grid-template-columns:minmax(0,1fr) auto; align-items:end; gap:20px; padding:29px; background:linear-gradient(130deg,#dcefe2,#f6f9f2 68%); border:1px solid #cfe3d5; border-radius:19px; }
     .eyebrow { margin:0 0 4px; color:var(--green); font-size:.78rem; font-weight:850; letter-spacing:.1em; text-transform:uppercase; }
-    h1,h2,h3,p { margin-top:0; }
-    h1 { font-size:clamp(1.8rem,4vw,2.65rem); line-height:1.13; letter-spacing:-.045em; margin-bottom:8px; }
-    h2 { font-size:1.32rem; letter-spacing:-.025em; margin-bottom:4px; }
+    h1 { font-size:clamp(2rem,5vw,3rem); }
     h3 { font-size:1rem; margin-bottom:6px; }
     .sub,.hint { color:var(--muted); }
     .sub { margin-bottom:0; max-width:640px; }
@@ -77,7 +68,7 @@
     .check-row:last-child { border:0; }
     input[type="checkbox"] { width:20px; height:20px; margin:2px 0 0; accent-color:var(--green); flex:none; }
     .primary { display:inline-flex; align-items:center; justify-content:center; min-height:46px; border:0; background:var(--green); color:white; border-radius:11px; padding:11px 16px; font-weight:800; text-decoration:none; }
-    .primary:hover { background:#104d3b; }
+    .primary:hover { background:var(--green-mid); }
     .secondary { display:inline-flex; align-items:center; justify-content:center; min-height:44px; border:1px solid #b8cfc1; background:white; color:var(--green); border-radius:11px; padding:9px 15px; font-weight:800; text-decoration:none; }
     .action-line { display:flex; gap:9px; flex-wrap:wrap; align-items:center; margin-top:15px; }
     .note { font-size:.85rem; color:var(--muted); margin:11px 0 0; }
@@ -95,18 +86,15 @@
     .route .card { box-shadow:none; }
     .route .arrow { font-size:1.5rem; color:var(--green); }
     .footer { margin-top:26px; padding-top:16px; border-top:1px solid var(--line); color:var(--muted); font-size:.82rem; }
-    .toast { position:fixed; left:50%; bottom:20px; transform:translateX(-50%); z-index:20; background:#173a32; color:white; border-radius:10px; padding:11px 16px; box-shadow:var(--shadow); font-size:.88rem; font-weight:750; max-width:calc(100vw - 30px); }
+    .toast { position:fixed; left:50%; bottom:20px; transform:translateX(-50%); z-index:20; background:var(--near-black); color:white; border-radius:10px; padding:11px 16px; box-shadow:var(--shadow); font-size:.88rem; font-weight:750; max-width:calc(100vw - 30px); }
     .toast[hidden] { display:none; }
     @media(max-width:760px) { .hero,.grid,.file-grid,.route { grid-template-columns:1fr; } .hero { padding:21px; } .role-box { width:100%; } .handoffs { grid-template-columns:repeat(2,minmax(0,1fr)); } .section-head { display:block; } .source { margin-top:5px; } }
-    @media(max-width:480px) { .shell { padding:0 13px 65px; } .top { padding:14px 0; } .brand small { display:none; } .mark { width:37px; height:37px; } .reset { padding:8px 10px; } .banner { margin:0 -13px; border-radius:0; } .tabs { width:100%; } .tab { flex:1; padding:10px 7px; font-size:.88rem; } .handoffs { gap:7px; } .handoff { padding:10px; } .card { padding:16px; } }
+    @media(max-width:480px) { .shell { padding:0 13px 65px; } .reset { padding:8px 10px; } .banner { margin:0 -13px; border-radius:0; } .tabs { width:100%; } .tab { flex:1; padding:10px 7px; font-size:.88rem; } .handoffs { gap:7px; } .handoff { padding:10px; } .card { padding:16px; } }
   </style>
 </head>
 <body>
+  <header class="jia-header"><div class="brand"><img src="jia-logo-green.png" alt="JIA logo" width="44" height="44"><div><strong>JIA Media Desk</strong><small>Sample demo</small></div></div><button class="reset" id="reset" type="button">Reset demo</button></header>
   <div class="shell">
-    <header class="top">
-      <div class="brand"><div class="mark" aria-hidden="true">J</div><div><strong>JIA Media Desk</strong><small>DEMO ONLY · Interactive sample</small></div></div>
-      <button class="reset" id="reset" type="button">Reset demo</button>
-    </header>
     <div class="banner" role="status"><strong>DEMO ONLY · Fictional service and sample statuses.</strong> Changes reset on reload and never update shared records. <a href="live.html">Open the live Sunday checklist pilot ↗</a> · <a href="program.html">Open the Program Team preview ↗</a></div>
     <nav class="tabs" aria-label="Main sections" role="tablist">
       <button class="tab" id="tab-sunday" role="tab" aria-controls="sunday" aria-selected="true" type="button">Sunday</button>

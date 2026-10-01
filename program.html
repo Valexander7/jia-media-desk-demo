@@ -12,34 +12,15 @@
   <link rel="icon" type="image/png" href="jia-logo-green.png">
   <link rel="apple-touch-icon" href="jia-logo-green.png">
   <title>JIA Alabang · Program Team preview</title>
+  <link rel="stylesheet" href="jia.css?v=1">
   <style>
-    :root { color-scheme:light; --green:#184829; --ink:#102a18; --muted:#425649; --line:#cbd8ca; --paper:#f4f8f2; --sage:#e0f2d9; --amber:#754600; }
-    * { box-sizing:border-box; }
-    html { -webkit-text-size-adjust:100%; }
-    body { margin:0; background:var(--paper); color:var(--ink); font:16px/1.45 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
-    button,input,select,textarea { font:inherit; }
-    button { cursor:pointer; border:0; border-radius:10px; min-height:44px; padding:10px 14px; font-weight:750; background:var(--green); color:white; }
-    button.secondary { background:white; color:var(--green); border:1px solid #9db49e; }
-    button:disabled { opacity:.55; cursor:not-allowed; }
-    button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,a:focus-visible,summary:focus-visible { outline:3px solid #ffba3b; outline-offset:3px; }
-    a { color:#135b38; font-weight:750; }
-    .shell { max-width:1100px; margin:auto; padding:0 12px 50px; }
-    header { display:flex; align-items:center; justify-content:space-between; gap:12px; margin:0 -12px 12px; padding:10px 14px; background:var(--green); color:white; }
-    header .brand { display:flex; gap:10px; align-items:center; min-width:0; }
-    header img { width:48px; height:48px; object-fit:contain; }
-    header strong,header small { display:block; line-height:1.2; }
-    header small { color:#d8ebd7; }
-    header a { color:white; text-align:right; font-size:.9rem; }
-    .banner { padding:12px 14px; border-radius:10px; background:#714000; color:white; font-weight:750; }
+    .shell { max-width:1100px; margin:auto; padding:12px 12px 50px; }
+    button { min-height:44px; padding:10px 14px; }
     .hero { padding:22px 4px 10px; }
-    h1,h2,h3,p { margin-top:0; }
-    h1 { font-size:clamp(1.8rem,5vw,2.4rem); line-height:1.12; margin-bottom:8px; }
-    h2 { font-size:1.3rem; margin-bottom:5px; }
     h3 { font-size:1.05rem; margin:0; }
-    .muted { color:var(--muted); }
     .grid { display:grid; gap:12px; align-items:start; }
     .grid > div { min-width:0; }
-    .card { background:white; border:1px solid var(--line); border-radius:13px; padding:16px; margin-top:12px; min-width:0; }
+    .card { min-width:0; }
     .row { display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; }
     .source { display:inline-flex; min-height:44px; align-items:center; }
     .form-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; }
@@ -71,7 +52,7 @@
     .move { display:flex; gap:4px; }
     .move button { min-width:38px; min-height:40px; padding:4px; }
     details { border-top:1px solid var(--line); padding:9px 12px 12px; }
-    summary { cursor:pointer; font-weight:750; color:#135b38; min-height:35px; }
+    summary { cursor:pointer; font-weight:700; color:var(--green-mid); min-height:35px; }
     .checks { display:flex; gap:9px; flex-wrap:wrap; margin-top:12px; }
     .checks label { display:flex; align-items:center; gap:6px; min-height:44px; padding:4px 8px; border:1px solid var(--line); border-radius:8px; }
     .checks input { width:20px; height:20px; min-height:0; accent-color:var(--green); }
@@ -84,9 +65,9 @@
   </style>
 </head>
 <body>
+  <header class="jia-header"><div class="brand"><img src="jia-logo-green.png" alt="JIA logo" width="44" height="44"><div><strong>JIA Alabang</strong><small>Program Team · preview</small></div></div><nav><a href="live.html">Checklist</a><a href="index.html">Demo</a></nav></header>
   <div class="shell">
-    <header><div class="brand"><img src="jia-logo-green.png" alt="JIA logo" width="48" height="48"><div><strong>JIA Alabang</strong><small>Media Support · Program Team preview</small></div></div><a href="live.html">Checklist pilot ↗</a></header>
-    <div class="banner" role="status"><strong>PREVIEW ONLY · Fictional sample data.</strong> This is not the live calendar or approved Sunday order. Edits stay on this device; they do not update Drive or alert the team.</div>
+    <p class="note" role="status"><strong>Preview with sample data.</strong> Not the live calendar or approved Sunday order. Edits stay on this phone only.</p>
     <div class="hero"><h1>Plan the Sunday flow together</h1><p class="muted">Put each segment in order, name the handoff, and check what is ready before it goes in front. The current Program Flow and run sheet in Drive remain the official sources.</p><div class="row"><a class="source" href="https://drive.google.com/file/d/1SWlV6LEeAKeF2pVnzaVrCRnKNvO9rhD2/view" target="_blank" rel="noopener noreferrer">Open source Program Flow ↗</a><a class="source" href="https://docs.google.com/spreadsheets/d/1ItieZgLx6cOteA-jBNAFiQaqH71Zr6w1y_Wyo9wKMaw/edit" target="_blank" rel="noopener noreferrer">Open current run sheet ↗</a></div></div>
     <div class="grid">
       <div>

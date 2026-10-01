@@ -93,10 +93,13 @@ if (!config || !config.apiKey || !config.authDomain || !config.projectId || !con
       $("account-note").textContent=`Your Google account: ${user.email || "email unavailable"} · ID ${accountId(user.uid)}. If a response shows a different account ID, confirm it with the Floor Director.`;
       $("sync-pill").textContent=live?"Live":"Unverified";
       $("sync-pill").className="pill "+(live?"ready":"unknown");
-      const setupChecks=Array.isArray(setup?.checks)&&setup.checks.length===setupItems.length?setup.checks:[false,false,false];
+      const setupChecks=Array.isArray(setup?.checks)&&setup.checks.length===setupItems.length?setup.checks:setupItems.map(()=>false);
       const completedChecks=setupChecks.filter(Boolean).length+stations.reduce((total,s)=>total+(Array.isArray(readiness[s.id]?.checks)?readiness[s.id].checks.filter(Boolean).length:0),0);
       const readyCount=stations.filter(s=>readiness[s.id]?.ready).length;
-      $("overall-progress").textContent=live?`Church setup ${setup?.complete?"Complete":"Waiting"} · ${completedChecks} of 18 checks · ${readyCount} of 5 stations Ready`:"Progress cannot be verified.";
+      const totalChecks=setupItems.length+stations.reduce((total,s)=>total+s.checks.length,0);
+      $("ready-count").textContent=live?String(readyCount):"?";
+      $("ready-of").textContent=`of ${stations.length} stations Ready`;
+      $("overall-progress").textContent=live?`Church setup ${setup?.complete?"Complete":"Waiting"} · ${completedChecks} of ${totalChecks} checks`:"Progress cannot be verified.";
       $("setup-pill").textContent=live?(setup?.complete?"Complete":"Waiting"):"Unverified";
       $("setup-pill").className="pill "+(live?(setup?.complete?"ready":""):"unknown");
       $("setup-progress").textContent=live?`${setupChecks.filter(Boolean).length} of ${setupItems.length} checks saved · ${stamp(setup?.updatedAt,setup?.updatedBy,setup?.updatedByName)}`:"Setup status cannot be verified right now.";
@@ -112,7 +115,7 @@ if (!config || !config.apiKey || !config.authDomain || !config.projectId || !con
       if (member.role==="shared") {
         $("operator-stations").replaceChildren(...stations.map((station,index)=>{
           const saved=readiness[station.id];
-          const checks=Array.isArray(saved?.checks)&&saved.checks.length===3?saved.checks:[false,false,false];
+          const checks=Array.isArray(saved?.checks)&&saved.checks.length===station.checks.length?saved.checks:station.checks.map(()=>false);
           const section=document.createElement("section"); section.className="station-card";
           const head=document.createElement("div"); head.className="row";
           const title=document.createElement("h2"); title.textContent=`${index+1}. ${station.name}`;
@@ -139,7 +142,7 @@ if (!config || !config.apiKey || !config.authDomain || !config.projectId || !con
         const station=currentStation();
         if (station) {
         const saved=readiness[station.id];
-        const checks=Array.isArray(saved?.checks) && saved.checks.length===3?saved.checks:[false,false,false];
+        const checks=Array.isArray(saved?.checks) && saved.checks.length===station.checks.length?saved.checks:station.checks.map(()=>false);
         $("station-title").textContent=station.name;
         $("station-pill").textContent=live?(saved?.ready?"Ready":"Waiting"):"Unverified";
         $("station-pill").className="pill "+(live?(saved?.ready?"ready":""):"unknown");
@@ -156,7 +159,7 @@ if (!config || !config.apiKey || !config.authDomain || !config.projectId || !con
         }
       }
       if (["director","shared"].includes(member.role)) {
-        $("director-count").textContent=live?`${readyCount} of 5 stations Ready`:`Status cannot be verified. Ask each station directly.`;
+        $("director-count").textContent=live?`${readyCount} of ${stations.length} stations Ready`:`Status cannot be verified. Ask each station directly.`;
         $("stations").replaceChildren(...stations.map(s=>{
           const row=document.createElement("div"); row.className="station";
           const label=document.createElement("div");
@@ -306,7 +309,7 @@ if (!config || !config.apiKey || !config.authDomain || !config.projectId || !con
       $("code-card").hidden=true; $("sunday-code").value=""; $("sunday-code").type="password";
       $("show-code").textContent="Show code"; $("show-code").setAttribute("aria-pressed","false");
       $("auth-card").hidden=Boolean(user); $("sign-in").hidden=Boolean(user); $("sign-out").hidden=!user;
-      if (!user) { setMessage("Sign in with any Google account, then enter the current Sunday code. Do not use the JIA Media password."); render(); return; }
+      if (!user) { setMessage(""); render(); return; }
       try {
         try { const token=await user.getIdTokenResult(); userName=typeof token.claims.name==="string"?token.claims.name:""; } catch (_) { userName=""; }
         const snap=await dbApi.getDocFromServer(dbApi.doc(db,"members",user.uid));

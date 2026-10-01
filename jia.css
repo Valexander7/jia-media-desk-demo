@@ -1,0 +1,59 @@
+/* JIA Media Desk shared look. Colours and fonts come from the JIA Alabang design system
+   (Claude Design, tokens.json v2): green-dark, sage, green-mid, near-black, white; Anton for
+   titles, Montserrat for everything else. Page files keep only their own layout rules. */
+@import url("https://fonts.googleapis.com/css2?family=Anton&family=Montserrat:wght@400;500;600;700;800&display=swap");
+
+:root {
+  color-scheme: light;
+  /* Design system tokens */
+  --green-dark: #184829;
+  --sage: #e0f2d9;
+  --green-mid: #157f44;
+  --near-black: #030c06;
+  /* Tool colours built on them */
+  --green: var(--green-dark);
+  --ink: #102a18;
+  --muted: #425649;
+  --line: #cbd8ca;
+  --paper: #f4f8f2;
+  --amber: #714000;
+  --amber-soft: #fff1d5;
+  --focus: #ffba3b;
+  --font-display: Anton, "Bebas Neue", Impact, sans-serif;
+  --font-body: Montserrat, system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--paper); color: var(--ink); font: 500 16px/1.5 var(--font-body); overflow-wrap: anywhere; }
+button, input, select, textarea { font: inherit; }
+a { color: var(--green-mid); font-weight: 700; text-underline-offset: 3px; }
+a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, summary:focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; }
+h1, h2, h3, p { margin-top: 0; }
+h1 { font: 400 clamp(2rem, 7vw, 2.6rem)/1.05 var(--font-display); text-transform: uppercase; letter-spacing: .01em; margin-bottom: 10px; }
+h2 { font-size: 1.2rem; font-weight: 800; line-height: 1.25; margin-bottom: 6px; }
+.muted { color: var(--muted); }
+[hidden] { display: none !important; }
+
+/* Header bar, the same on every page */
+.jia-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 14px; background: var(--green-dark); color: white; }
+.jia-header .brand { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.jia-header img { width: 44px; height: 44px; object-fit: contain; flex: none; }
+.jia-header strong { display: block; font-size: 1rem; font-weight: 800; line-height: 1.15; }
+.jia-header small { display: block; color: var(--sage); font-size: .78rem; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; }
+.jia-header nav { display: flex; gap: 14px; flex-wrap: wrap; justify-content: flex-end; }
+.jia-header a, .jia-header button.link { color: white; font-size: .85rem; font-weight: 700; }
+
+/* Buttons */
+button { cursor: pointer; border: 0; border-radius: 10px; min-height: 48px; padding: 11px 16px; font-weight: 700; background: var(--green-dark); color: white; }
+button:disabled { opacity: .55; cursor: not-allowed; }
+button.secondary { background: white; color: var(--green-dark); border: 1px solid #9db49e; }
+button.link { background: none; border: 0; min-height: 0; padding: 0; text-decoration: underline; }
+
+/* Cards, notes and status pills */
+.card { background: white; border: 1px solid var(--line); border-radius: 12px; padding: 16px; margin-top: 12px; }
+.note { background: var(--amber-soft); color: #5d3600; border: 1px solid #ddb36c; border-radius: 10px; padding: 10px 12px; font-size: .9rem; }
+.note a { color: #5d3600; }
+.pill { display: inline-block; border-radius: 999px; padding: 4px 10px; background: var(--amber-soft); color: var(--amber); font-size: .82rem; font-weight: 800; white-space: nowrap; }
+.pill.ready { background: var(--sage); color: var(--green-dark); }
+.pill.unknown { background: #edf0ef; color: var(--muted); }
