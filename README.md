@@ -6,6 +6,10 @@ The JIA Media Desk has three parts:
 - `live.html` is the online Sunday checklist. It connects to the team-owned `jia-media-desk` Firebase project on the Spark no-cost plan. The current service is October 4, 2026. At the September 28 readback, the service was open, the September 27 service was closed, and no station responses or test passes remained.
 - `program.html` is a public Program Team preview with fictional calendar items and a reorderable Sunday flow. It saves changes in that browser only. It does not sync between devices, update Drive, or notify anyone. Do not enter real birthdays or private contact details.
 
+## This Sunday reminders
+
+The live page shows a "This Sunday" card for the coming Sunday in Manila time: Breaking of the Bread on the 1st and 3rd Sunday, homogeneous hosting and birthday celebrants on the last Sunday, and the weekly FB Live thumbnail. The rules are in `sunday-reminders.js` and come from Program Flow plus John's 2026-10-01 note. The card needs no sign-in or database. Confirm each Sunday against the Sunday Service Program in Drive.
+
 ## Sunday checklist access
 
 The live page uses Google sign-in plus a private Sunday code. Any verified Google account with the current service code can read and edit the church setup checklist and all five station responses. Give the code in person. Never put it in this repository, a public URL, or a screenshot. A new random code is needed for each service. The code controls access but does not prove who held the phone or completed a check.
