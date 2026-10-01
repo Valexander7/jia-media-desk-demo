@@ -10,7 +10,7 @@ The JIA Media Desk has three parts:
 
 The live page uses Google sign-in plus a private Sunday code. Any verified Google account with the current service code can read and edit the church setup checklist and all five station responses. Give the code in person. Never put it in this repository, a public URL, or a screenshot. A new random code is needed for each service. The code controls access but does not prove who held the phone or completed a check.
 
-The October 4 code is stored in the private `serviceAccess/2026-10-04` Firestore document. Do not copy the code into this file. Changing the code invalidates previously saved passes; a person can enter the new code on the same account. Each save records the signed-in account's Google UID and a server timestamp. Firestore keeps the latest response, not a full change history.
+The October 4 code is stored in the private `serviceAccess/2026-10-04` Firestore document. Do not copy the code into this file. Changing the code invalidates previously saved passes; a person can enter the new code on the same account. Each save records the signed-in account's Google UID, its Google display name (the rules accept only the name on the sign-in token), and a server timestamp. Saves run as Firestore transactions, so two phones ticking the same station at once both keep their tick. Firestore keeps the latest response, not a full change history.
 
 The JIA Media shared account remains an active fallback and can still update the current service without entering the Sunday code. Do not share its password. Revoke this fallback only after the assigned phone operator has confirmed the personal-account flow works for service day.
 

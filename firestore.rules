@@ -39,17 +39,24 @@ service cloud.firestore {
               && get(memberPath()).data.station == stationId)))
         || hasSundayCode(serviceId);
     }
+    // Optional display name; must match the Google sign-in name exactly.
+    function validName(data) {
+      return !('updatedByName' in data)
+        || (data.updatedByName is string && data.updatedByName.size() <= 60
+          && data.updatedByName == request.auth.token.name);
+    }
     function validResponse(stationId) {
       let data = request.resource.data;
       return stationId in ['camera', 'livestream', 'audio', 'onsite-projection', 'fb-projection']
-        && data.keys().hasOnly(['checks', 'ready', 'updatedAt', 'updatedBy'])
+        && data.keys().hasOnly(['checks', 'ready', 'updatedAt', 'updatedBy', 'updatedByName'])
         && data.keys().hasAll(['checks', 'ready', 'updatedAt', 'updatedBy'])
         && data.checks is list && data.checks.size() == 3
         && data.checks[0] is bool && data.checks[1] is bool && data.checks[2] is bool
         && data.ready is bool
         && (!data.ready || (data.checks[0] && data.checks[1] && data.checks[2]))
         && data.updatedBy == request.auth.uid
-        && data.updatedAt == request.time;
+        && data.updatedAt == request.time
+        && validName(data);
     }
     function canWriteSetup(serviceId) {
       return (isMember() && get(memberPath()).data.role in ['shared', 'director'])
@@ -57,14 +64,15 @@ service cloud.firestore {
     }
     function validSetup() {
       let data = request.resource.data;
-      return data.keys().hasOnly(['checks', 'complete', 'updatedAt', 'updatedBy'])
+      return data.keys().hasOnly(['checks', 'complete', 'updatedAt', 'updatedBy', 'updatedByName'])
         && data.keys().hasAll(['checks', 'complete', 'updatedAt', 'updatedBy'])
         && data.checks is list && data.checks.size() == 3
         && data.checks[0] is bool && data.checks[1] is bool && data.checks[2] is bool
         && data.complete is bool
         && (!data.complete || (data.checks[0] && data.checks[1] && data.checks[2]))
         && data.updatedBy == request.auth.uid
-        && data.updatedAt == request.time;
+        && data.updatedAt == request.time
+        && validName(data);
     }
 
     match /members/{uid} {
