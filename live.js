@@ -247,10 +247,12 @@ if (!config || !config.apiKey || !config.authDomain || !config.projectId || !con
       // Changing any box withdraws Ready, as before.
       save(station.id,latest=>{ const checks=[...latest.checks]; checks[index]=value; return {checks, done:false}; });
     }
-    // Mark or withdraw Ready/Complete against the latest saved copy; marking needs every box ticked.
-    function toggleDone(latest) {
-      if (latest.done) return {checks:latest.checks, done:false};
-      return latest.checks.every(Boolean) ? {checks:latest.checks, done:true} : null;
+    // Capture the intended Ready/Complete value at tap time; marking needs every latest box ticked.
+    function toggleDone(done) {
+      return latest=>{
+        if (!done) return {checks:latest.checks, done:false};
+        return latest.checks.every(Boolean) ? {checks:latest.checks, done:true} : null;
+      };
     }
     $("checks").addEventListener("change",changeStationCheck);
     $("operator-stations").addEventListener("change",changeStationCheck);
@@ -260,16 +262,16 @@ if (!config || !config.apiKey || !config.authDomain || !config.projectId || !con
       saveSetup(latest=>{ const checks=[...latest.checks]; checks[index]=value; return {checks, done:false}; });
     });
     $("setup-complete-button").addEventListener("click",()=>{
-      saveSetup(toggleDone);
+      saveSetup(toggleDone(!setup?.complete));
     });
     $("ready-button").addEventListener("click",()=>{
       const station=currentStation(); if (!station) return;
-      save(station.id,toggleDone);
+      save(station.id,toggleDone(!readiness[station.id]?.ready));
     });
     $("operator-stations").addEventListener("click",event=>{
       const button=event.target.closest("[data-ready-station]"); if (!button) return;
       const station=stations.find(s=>s.id===button.dataset.readyStation); if (!station) return;
-      save(station.id,toggleDone);
+      save(station.id,toggleDone(!readiness[station.id]?.ready));
     });
     $("sign-in").addEventListener("click",async()=>{
       try { await authApi.signInWithRedirect(auth,provider); }
