@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="description" content="Shows each camera operator whether their camera is live on FB Live.">
+  <meta name="theme-color" content="#030c06">
+  <link rel="icon" type="image/png" href="jia-logo-green.png">
+  <link rel="apple-touch-icon" href="jia-logo-green.png">
+  <title>JIA Alabang · Live camera</title>
+  <link rel="stylesheet" href="jia.css?v=1">
+  <style>
+    body { background:var(--near-black); color:white; }
+    .shell { max-width:760px; margin:auto; padding:12px 12px 32px; }
+    .card { color:var(--ink); }
+    .roles { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-top:12px; }
+    .roles button { background:#1d2a21; color:white; border:1px solid #3c5143; }
+    .roles button[aria-pressed="true"] { background:white; color:var(--green-dark); }
+    /* Camera screen: the whole phone turns one colour so it reads from behind the camera. */
+    .screen { display:grid; place-content:center; text-align:center; min-height:calc(100vh - 210px); min-height:calc(100dvh - 210px); margin-top:12px; border-radius:16px; padding:20px; transition:background .15s; }
+    .screen .title { font:400 clamp(4rem,22vw,9rem)/1 var(--font-display); text-transform:uppercase; letter-spacing:.02em; }
+    .screen .detail { font-size:1.15rem; font-weight:700; margin-top:10px; }
+    .screen.live { background:#d0161b; color:white; }
+    .screen.standby { background:var(--green-dark); color:var(--sage); }
+    .screen.unknown { background:#4a4f4c; color:white; }
+    /* Director buttons */
+    .switcher { display:grid; gap:10px; margin-top:12px; }
+    .switcher button { min-height:96px; font:400 2.4rem/1 var(--font-display); text-transform:uppercase; background:#1d2a21; color:white; border:2px solid #3c5143; }
+    .switcher button[aria-pressed="true"] { background:#d0161b; border-color:#d0161b; }
+    .switcher button.off[aria-pressed="true"] { background:white; color:var(--near-black); border-color:white; }
+    .status { margin:10px 0 0; font-weight:700; color:var(--sage); }
+    .status.error { color:#ffb4a8; }
+    .footer { margin-top:14px; color:#b9c7bd; font-size:.88rem; }
+    .footer a { color:var(--sage); }
+  </style>
+</head>
+<body>
+  <header class="jia-header"><div class="brand"><img src="jia-logo-green.png" alt="JIA logo" width="44" height="44"><div><strong>JIA Alabang</strong><small>Live camera · trial</small></div></div><nav><a href="live.html">Checklist</a></nav></header>
+  <main class="shell">
+    <section class="card" id="auth-card" hidden>
+      <h1>Live camera</h1>
+      <p class="muted">Sign in with your own Google account. If you have not entered this Sunday's code yet, open the checklist page first and enter it there.</p>
+      <div class="actions"><button id="sign-in" type="button">Sign in with Google</button></div>
+      <p><a href="live.html" style="color:var(--green-mid)">Open the Sunday checklist</a></p>
+    </section>
+    <section id="tally" hidden>
+      <div class="roles" role="group" aria-label="This phone is for">
+        <button type="button" data-role="director">Director</button>
+        <button type="button" data-role="cam1">Cam 1</button>
+        <button type="button" data-role="cam2">Cam 2</button>
+      </div>
+      <div class="switcher" id="switcher" hidden>
+        <button type="button" data-cam="1">Cam 1 live</button>
+        <button type="button" data-cam="2">Cam 2 live</button>
+        <button type="button" class="off" data-cam="0">No camera (slides)</button>
+      </div>
+      <div class="screen unknown" id="screen" hidden role="status" aria-live="assertive">
+        <div class="title" id="screen-title">…</div>
+        <div class="detail" id="screen-detail"></div>
+      </div>
+    </section>
+    <p class="status" id="message" role="status" aria-live="polite"></p>
+    <p class="footer">Trial. If this screen is grey or you are unsure, follow the director's voice cue. <button class="link" id="sign-out" type="button" hidden style="color:var(--sage)">Sign out</button></p>
+  </main>
+  <script src="live-config.js?v=3"></script>
+  <script type="module" src="tally.js?v=3"></script>
+</body>
+</html>

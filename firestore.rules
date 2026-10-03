@@ -75,6 +75,17 @@ service cloud.firestore {
         && validName(data);
     }
 
+    // Which camera is on air. cam 0 means neither (slides, intro or countdown on screen).
+    function validTally() {
+      let data = request.resource.data;
+      return data.keys().hasOnly(['cam', 'updatedAt', 'updatedBy', 'updatedByName'])
+        && data.keys().hasAll(['cam', 'updatedAt', 'updatedBy'])
+        && data.cam is int && data.cam in [0, 1, 2]
+        && data.updatedBy == request.auth.uid
+        && data.updatedAt == request.time
+        && validName(data);
+    }
+
     match /members/{uid} {
       allow get: if signedIn() && request.auth.uid == uid;
       allow list, write: if false;
@@ -109,6 +120,12 @@ service cloud.firestore {
         allow create, update: if canWriteStation(serviceId, stationId) && isCurrent(serviceId)
           && isOpen(serviceId) && validResponse(stationId);
         allow delete: if false;
+      }
+      match /tally/{tallyId} {
+        allow get: if tallyId == 'live' && canUseService(serviceId) && isCurrent(serviceId);
+        allow create, update: if tallyId == 'live' && canUseService(serviceId)
+          && isCurrent(serviceId) && isOpen(serviceId) && validTally();
+        allow list, delete: if false;
       }
       match /setup/{setupId} {
         allow get: if setupId == 'pre-service' && canUseService(serviceId) && isCurrent(serviceId);

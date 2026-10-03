@@ -10,6 +10,12 @@ The JIA Media Desk has three parts:
 
 The live page shows a "This Sunday" card for the coming Sunday in Manila time: Breaking of the Bread on the 1st and 3rd Sunday, homogeneous hosting and birthday celebrants on the last Sunday, and the weekly FB Live thumbnail. The rules are in `sunday-reminders.js` and come from Program Flow plus John's 2026-10-01 note. The card needs no sign-in or database. Confirm each Sunday against the Sunday Service Program in Drive.
 
+## Live camera tally (trial)
+
+`tally.html` tells each camera operator whether their camera is on FB Live. The director's phone opens it as **Director** and taps Cam 1, Cam 2 or No camera; each camera phone opens it as **Cam 1** or **Cam 2** and turns full red when it is live, green on standby. Direct links: `tally.html?as=director`, `tally.html?as=cam1`, `tally.html?as=cam2`. Access is the same as the checklist (Google sign-in plus the Sunday code, entered on the checklist page). It saves one document, `services/{id}/tally/live` = `{cam: 0|1|2}`.
+
+The director's page sends a heartbeat every 5 seconds, so it must stay open. A camera phone that hears nothing for 15 seconds turns grey ("Not connected") instead of showing an old answer; grey means follow the director's voice cue. The page asks the phone to keep its screen on. It is not linked from the other pages yet; the media leaders approve before the team uses it.
+
 ## Sunday checklist access
 
 The live page uses Google sign-in plus a private Sunday code. Any verified Google account with the current service code can read and edit the church setup checklist and all five station responses. Give the code in person. Never put it in this repository, a public URL, or a screenshot. A new random code is needed for each service. The code controls access but does not prove who held the phone or completed a check.
