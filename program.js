@@ -1,11 +1,11 @@
 "use strict";
 
-const KEY = "jia-program-preview-v1";
+const KEY = "jia-program-preview-v2";
 const $ = id => document.getElementById(id);
 const escapeHtml = value => String(value ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));
 const uid = () => globalThis.crypto?.randomUUID?.() || `${Date.now()}-${Math.random().toString(36).slice(2)}`;
 const sample = () => ({
-  month:"2026-11", selected:null, serviceDate:"2026-11-15",
+  month:new Date().toISOString().slice(0,7), selected:null, serviceDate:"2026-11-15",
   events:[
     {id:"e1",date:"2026-11-15",type:"Birthday greeting",title:"Mina’s birthday (fictional)",intro:"Onsite announcements · 10:35–10:45",owner:"Church Narrator"},
     {id:"e2",date:"2026-11-22",type:"Event",title:"Volunteer orientation (fictional)",intro:"Onsite announcements",owner:"Program Team"}
@@ -32,6 +32,17 @@ function save() { try { localStorage.setItem(KEY,JSON.stringify(state)); } catch
 function dateText(date) { return new Intl.DateTimeFormat(undefined,{weekday:"short",month:"short",day:"numeric"}).format(new Date(`${date}T12:00:00`)); }
 function ready(block) { return ["person","asset","cue"].every(key => !block.needs?.[key] || block.done?.[key]); }
 function monthDays(month) { const [year,num]=month.split("-").map(Number); return new Date(year,num,0).getDate(); }
+// Automatic items for a date: monthly Sunday rules plus one-off church events (from sunday-reminders.js).
+function autoItems(date) {
+  const items=[];
+  const d=new Date(`${date}T12:00:00Z`);
+  if(typeof SUNDAY_RULES!=="undefined" && d.getUTCDay()===0) {
+    for(const rule of SUNDAY_RULES) if(rule.when!=="every" && matchesRule(rule,d)) items.push({date,title:rule.text,type:"Monthly",owner:rule.team});
+  }
+  if(typeof CHURCH_EVENTS!=="undefined") for(const ev of CHURCH_EVENTS) if(ev.date===date) items.push({date,title:ev.text,type:"Church event",owner:ev.team});
+  return items;
+}
+function monthAutoItems(month) { const out=[]; for(let day=1; day<=monthDays(month); day++) out.push(...autoItems(`${month}-${String(day).padStart(2,"0")}`)); return out; }
 function renderCalendar() {
   const [year,num]=state.month.split("-").map(Number);
   $("month-label").textContent=new Intl.DateTimeFormat(undefined,{month:"long",year:"numeric"}).format(new Date(year,num-1,1));
@@ -40,16 +51,19 @@ function renderCalendar() {
   html += Array.from({length:start},()=>"<span></span>").join("");
   for(let day=1; day<=monthDays(state.month); day++) {
     const date=`${state.month}-${String(day).padStart(2,"0")}`;
-    const count=state.events.filter(event=>event.date===date).length;
-    html+=`<button type="button" class="day ${count?"has-event":""} ${state.selected===date?"selected":""}" data-date="${date}" aria-label="${escapeHtml(dateText(date))}, ${count} items" aria-pressed="${state.selected===date}">${day}${count?`<span class="dot">${count} item${count===1?"":"s"}</span>`:""}</button>`;
+    const auto=autoItems(date).length;
+    const count=state.events.filter(event=>event.date===date).length+auto;
+    html+=`<button type="button" class="day ${count?"has-event":""} ${auto?"has-auto":""} ${state.selected===date?"selected":""}" data-date="${date}" aria-label="${escapeHtml(dateText(date))}, ${count} items" aria-pressed="${state.selected===date}">${day}${count?`<span class="dot">${count} item${count===1?"":"s"}</span>`:""}</button>`;
   }
   $("calendar").innerHTML=html;
 }
 function renderEvents() {
-  const visible=state.events.filter(event=>!state.selected || event.date===state.selected).sort((a,b)=>a.date.localeCompare(b.date));
+  const auto=(state.selected?autoItems(state.selected):monthAutoItems(state.month));
+  const own=state.events.filter(event=>!state.selected || event.date===state.selected);
+  const visible=[...auto.map(item=>({...item,auto:true})),...own].sort((a,b)=>a.date.localeCompare(b.date));
   $("event-heading").textContent=state.selected?`Items · ${dateText(state.selected)}`:"Upcoming items";
   $("show-all").hidden=!state.selected;
-  $("events").innerHTML=visible.length?visible.map(event=>`<article class="event" data-event-id="${escapeHtml(event.id)}"><div class="row"><strong>${escapeHtml(event.title)}</strong><span class="tag">${escapeHtml(event.type)}</span></div><p class="small muted">${escapeHtml(dateText(event.date))} · ${escapeHtml(event.intro || "Introduction time not set")}</p><p class="small muted">Confirm with: ${escapeHtml(event.owner || "Not assigned")}</p><div class="actions"><button type="button" class="secondary" data-event-add="${escapeHtml(event.id)}" ${event.date===state.serviceDate?"":"disabled"}>${event.date===state.serviceDate?"Add to program":"Different service date"}</button><button type="button" class="secondary" data-event-delete="${escapeHtml(event.id)}">Remove</button></div></article>`).join(""):`<p class="empty">No items for this date. Add one below, or show all.</p>`;
+  $("events").innerHTML=visible.length?visible.map(event=>event.auto?`<article class="event auto"><div class="row"><strong>${escapeHtml(event.title)}</strong><span class="tag ready">${escapeHtml(event.type)}</span></div><p class="small muted">${escapeHtml(dateText(event.date))} · ${escapeHtml(event.owner)}</p></article>`:`<article class="event" data-event-id="${escapeHtml(event.id)}"><div class="row"><strong>${escapeHtml(event.title)}</strong><span class="tag">${escapeHtml(event.type)}</span></div><p class="small muted">${escapeHtml(dateText(event.date))} · ${escapeHtml(event.intro || "Introduction time not set")}</p><p class="small muted">Confirm with: ${escapeHtml(event.owner || "Not assigned")}</p><div class="actions"><button type="button" class="secondary" data-event-add="${escapeHtml(event.id)}" ${event.date===state.serviceDate?"":"disabled"}>${event.date===state.serviceDate?"Add to program":"Different service date"}</button><button type="button" class="secondary" data-event-delete="${escapeHtml(event.id)}">Remove</button></div></article>`).join(""):`<p class="empty">No items for this date. Add one below, or show all.</p>`;
 }
 function renderBlocks() {
   const done=state.blocks.filter(ready).length;

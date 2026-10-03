@@ -36,6 +36,8 @@
     .calendar .weekday { text-align:center; font-size:.76rem; color:var(--muted); font-weight:750; }
     .day { border:1px solid var(--line); border-radius:7px; min-height:49px; padding:4px; font-size:.8rem; background:white; color:var(--ink); text-align:left; font-weight:700; }
     .day.has-event { background:var(--sage); border-color:#80ac81; }
+    .day.has-auto { border-color:#80ac81; border-width:2px; }
+    .event.auto strong { color:var(--green); }
     .day.selected { outline:3px solid #eab650; }
     .day .dot { display:block; font-size:.64rem; font-weight:650; line-height:1.1; }
     .event { border-top:1px solid var(--line); padding:11px 0; }
@@ -71,7 +73,7 @@
     <div class="hero"><h1>Plan the Sunday flow together</h1><p class="muted">Put each segment in order, name the handoff, and check what is ready before it goes in front. The current Program Flow and run sheet in Drive remain the official sources.</p><div class="row"><a class="source" href="https://drive.google.com/file/d/1SWlV6LEeAKeF2pVnzaVrCRnKNvO9rhD2/view" target="_blank" rel="noopener noreferrer">Open source Program Flow ↗</a><a class="source" href="https://docs.google.com/spreadsheets/d/1ItieZgLx6cOteA-jBNAFiQaqH71Zr6w1y_Wyo9wKMaw/edit" target="_blank" rel="noopener noreferrer">Open current run sheet ↗</a></div></div>
     <div class="grid">
       <div>
-        <section class="card"><div class="row"><div><h2>Calendar &amp; upcoming</h2><p class="muted small">Choose a date to filter the list. Use fictional entries only; do not add real birthdays to this public preview.</p></div></div><div class="calendar-head"><button type="button" class="secondary" id="prev-month" aria-label="Previous month">‹</button><strong id="month-label"></strong><button type="button" class="secondary" id="next-month" aria-label="Next month">›</button></div><div class="calendar" id="calendar"></div><div class="row" style="margin-top:12px"><strong id="event-heading">Upcoming items</strong><button type="button" class="secondary" id="show-all">Show all</button></div><div id="events"></div></section>
+        <section class="card"><div class="row"><div><h2>Calendar &amp; upcoming</h2><p class="muted small">Each Sunday already shows its monthly items (Breaking of the Bread, hosting, birthday celebrants) and church events. Choose a date to filter. Items you add stay on this phone only; do not add real birthdays here.</p></div></div><div class="calendar-head"><button type="button" class="secondary" id="prev-month" aria-label="Previous month">‹</button><strong id="month-label"></strong><button type="button" class="secondary" id="next-month" aria-label="Next month">›</button></div><div class="calendar" id="calendar"></div><div class="row" style="margin-top:12px"><strong id="event-heading">Upcoming items</strong><button type="button" class="secondary" id="show-all">Show all</button></div><div id="events"></div></section>
         <section class="card"><h2>Add calendar item</h2><p class="muted small">Record when it should be mentioned or shown. No automatic announcement is sent. Use fictional names in this public preview.</p><form id="event-form" class="form-grid"><label class="field">Date<input name="date" type="date" required></label><label class="field">Type<select name="type"><option>Event</option><option>Birthday greeting</option><option>Announcement</option><option>Reminder</option></select></label><label class="field wide">Title<input name="title" maxlength="80" required placeholder="e.g. Volunteer orientation"></label><label class="field wide">When to introduce<input name="intro" maxlength="100" placeholder="e.g. Onsite announcements, 10:35–10:45"></label><label class="field wide">Who will confirm it<input name="owner" maxlength="80" placeholder="e.g. Program Team lead"></label><div class="actions" style="grid-column:1/-1"><button type="submit">Add item</button></div></form></section>
       </div>
       <div>
@@ -82,6 +84,7 @@
     </div>
     <p class="footer">PREVIEW ONLY · Fictional entries · no account connection or team sync · not an approved Sunday program.</p>
   </div>
-  <script src="program.js"></script>
+  <script src="sunday-reminders.js?v=2"></script>
+  <script src="program.js?v=2"></script>
 </body>
 </html>
