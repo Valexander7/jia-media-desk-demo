@@ -36,8 +36,10 @@ service cloud.firestore {
         && exists(teamSecretPath())
         && get(teamPassPath()).data.code == get(teamSecretPath()).data.code;
     }
+    // Access (John, 2026-10-03, I2): any verified Google account. To go back to a password,
+    // replace googleAccount() in these three functions with hasTeamPassword().
     function canUseService(serviceId) {
-      return isMember() || hasSundayCode(serviceId) || hasTeamPassword();
+      return isMember() || googleAccount();
     }
     function isCurrent(serviceId) {
       return get(/databases/$(database)/documents/settings/current).data.serviceId == serviceId;
@@ -50,7 +52,7 @@ service cloud.firestore {
           && (get(memberPath()).data.role == 'shared'
             || (get(memberPath()).data.role == 'lead'
               && get(memberPath()).data.station == stationId)))
-        || hasSundayCode(serviceId) || hasTeamPassword();
+        || googleAccount();
     }
     // Optional display name; must match the Google sign-in name exactly.
     function validName(data) {
@@ -73,7 +75,7 @@ service cloud.firestore {
     }
     function canWriteSetup(serviceId) {
       return (isMember() && get(memberPath()).data.role in ['shared', 'director'])
-        || hasSundayCode(serviceId) || hasTeamPassword();
+        || googleAccount();
     }
     function validSetup() {
       let data = request.resource.data;

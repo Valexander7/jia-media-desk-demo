@@ -73,7 +73,7 @@ if (!config || !config.apiKey || !config.authDomain || !config.projectId || !con
     function serviceError(error, message) {
       if (member?.viaCode && error.code==="permission-denied") {
         clearListeners(); member=null;
-        showCodePrompt("Access has changed. Enter the team password again, and confirm go-signals directly until this page reconnects.",true);
+        setMessage("Access has changed. Confirm go-signals directly and tell John or James.",true); render();
       } else { setMessage(message+error.message,true); render(); }
     }
     function render() {
@@ -81,7 +81,7 @@ if (!config || !config.apiKey || !config.authDomain || !config.projectId || !con
       // Brown warning only for real connection problems, not for the normal sign-in and code steps.
       $("connection").classList.toggle("warn",!live && Boolean(member));
       $("connection").classList.toggle("idle",!member);
-      $("connection").textContent=!user?"Not signed in yet. Sign in below to open the Sunday checklist.":busy?"Checking or saving. Please wait…":live?"Connected. Saved responses are shown below.":user&&!member?"Signed in. Enter the team password to open the live checklist.":"Connection unavailable or unverified. Confirm go-signals directly with the Floor Director.";
+      $("connection").textContent=!user?"Not signed in yet. Sign in below to open the Sunday checklist.":busy?"Checking or saving. Please wait…":live?"Connected. Saved responses are shown below.":user&&!member?"Signed in. Opening this Sunday's checklist…":"Connection unavailable or unverified. Confirm go-signals directly with the Floor Director.";
       $("service-card").hidden=!member || !service;
       $("setup-card").hidden=!member || !service;
       $("operator-card").hidden=!member || member.role!=="shared" || !service;
@@ -322,12 +322,12 @@ if (!config || !config.apiKey || !config.authDomain || !config.projectId || !con
         } else {
           const pointer=await dbApi.getDocFromServer(dbApi.doc(db,"settings","current"));
           const id=pointer.exists()?pointer.data().serviceId:null;
-          if (typeof id!=="string" || !/^\d{4}-\d{2}-\d{2}$/.test(id)) { showCodePrompt("No current service is selected. Ask the Floor Director before entering a code.",true); return; }
+          if (typeof id!=="string" || !/^\d{4}-\d{2}-\d{2}$/.test(id)) { setMessage("No Sunday is open yet. Ask John or James.",true); render(); return; }
           // Reading the service only works with a valid team password (or this Sunday's code).
           try {
             const verified=await dbApi.getDocFromServer(dbApi.doc(db,"services",id));
             if (!verified.exists()) throw new Error("Service missing");
-          } catch (_) { showCodePrompt(`Signed in as ${user.email || "your Google account"}. Enter the team password to continue. You only need to do this once.`); return; }
+          } catch (_) { setMessage("Could not open this Sunday's checklist. Check with John or James.",true); render(); return; }
           member={role:"shared",viaCode:true};
         }
         setMessage(member.viaCode?`Signed in as ${user.email || "your Google account"}. Your changes are saved with this account and time.`:member.role==="shared"?"":member.role==="director"?"Floor Director view open.":"Your station view is open.");

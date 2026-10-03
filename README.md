@@ -18,6 +18,8 @@ The director's page sends a heartbeat every 5 seconds, so it must stay open. A c
 
 ## Sunday checklist access
 
+**Current access (John, 2026-10-03): Google sign-in only.** Any verified Google account can open and tick the current open Sunday and switch the camera tally; no password or code. Closed Sundays, the current-Sunday pointer and private documents stay locked. To go back to a password, swap `googleAccount()` for `hasTeamPassword()` in `canUseService`, `canWriteStation` and `canWriteSetup` in `firestore.rules`; the team-password parts below are kept for that.
+
 **Team password (from 2026-10-03).** Members enter one media team password once per Google account; the page remembers it on later Sundays. The owner sets it in the private `teamAccess/current` document (field `code`, 8–32 characters) in the Firebase console, and changes it when someone leaves the team (everyone then enters the new one once). Never put the password in this repository. The older per-Sunday code below still works as a fallback.
 
 
