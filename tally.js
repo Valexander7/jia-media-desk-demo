@@ -111,7 +111,7 @@ if (!config?.apiKey) {
         fresh = false;
         if (error.code === "permission-denied") {
           serviceId = null;
-          setMessage("This account has no access to this Sunday yet. Enter the Sunday code on the checklist page, then come back.", true);
+          setMessage("This account has no access to this Sunday yet. Enter the team password on the checklist page once, then come back.", true);
         } else setMessage("Lost the live connection: " + error.message, true);
         render();
       });

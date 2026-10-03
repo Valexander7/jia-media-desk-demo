@@ -18,6 +18,9 @@ The director's page sends a heartbeat every 5 seconds, so it must stay open. A c
 
 ## Sunday checklist access
 
+**Team password (from 2026-10-03).** Members enter one media team password once per Google account; the page remembers it on later Sundays. The owner sets it in the private `teamAccess/current` document (field `code`, 8–32 characters) in the Firebase console, and changes it when someone leaves the team (everyone then enters the new one once). Never put the password in this repository. The older per-Sunday code below still works as a fallback.
+
+
 The live page uses Google sign-in plus a private Sunday code. Any verified Google account with the current service code can read and edit the church setup checklist and all five station responses. Give the code in person. Never put it in this repository, a public URL, or a screenshot. A new random code is needed for each service. The code controls access but does not prove who held the phone or completed a check.
 
 The October 4 code is stored in the private `serviceAccess/2026-10-04` Firestore document. Do not copy the code into this file. Changing the code invalidates previously saved passes; a person can enter the new code on the same account. Each save records the signed-in account's Google UID, its Google display name (the rules accept only the name on the sign-in token), and a server timestamp. Saves run as Firestore transactions, so two phones ticking the same station at once both keep their tick. Firestore keeps the latest response, not a full change history.

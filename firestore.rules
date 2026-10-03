@@ -23,8 +23,21 @@ service cloud.firestore {
         && exists(secretPath(serviceId))
         && get(passPath(serviceId)).data.code == get(secretPath(serviceId)).data.code;
     }
+    // Team password: entered once per Google account, valid until the owner changes teamAccess/current.
+    function teamPassPath() {
+      return /databases/$(database)/documents/teamPasses/$(request.auth.uid);
+    }
+    function teamSecretPath() {
+      return /databases/$(database)/documents/teamAccess/current;
+    }
+    function hasTeamPassword() {
+      return googleAccount()
+        && exists(teamPassPath())
+        && exists(teamSecretPath())
+        && get(teamPassPath()).data.code == get(teamSecretPath()).data.code;
+    }
     function canUseService(serviceId) {
-      return isMember() || hasSundayCode(serviceId);
+      return isMember() || hasSundayCode(serviceId) || hasTeamPassword();
     }
     function isCurrent(serviceId) {
       return get(/databases/$(database)/documents/settings/current).data.serviceId == serviceId;
@@ -37,7 +50,7 @@ service cloud.firestore {
           && (get(memberPath()).data.role == 'shared'
             || (get(memberPath()).data.role == 'lead'
               && get(memberPath()).data.station == stationId)))
-        || hasSundayCode(serviceId);
+        || hasSundayCode(serviceId) || hasTeamPassword();
     }
     // Optional display name; must match the Google sign-in name exactly.
     function validName(data) {
@@ -60,7 +73,7 @@ service cloud.firestore {
     }
     function canWriteSetup(serviceId) {
       return (isMember() && get(memberPath()).data.role in ['shared', 'director'])
-        || hasSundayCode(serviceId);
+        || hasSundayCode(serviceId) || hasTeamPassword();
     }
     function validSetup() {
       let data = request.resource.data;
@@ -96,6 +109,23 @@ service cloud.firestore {
     }
     match /serviceAccess/{serviceId} {
       allow read, write: if false;
+    }
+    match /teamAccess/{docId} {
+      allow read, write: if false;
+    }
+    match /teamPasses/{uid} {
+      allow get: if googleAccount() && request.auth.uid == uid;
+      allow list, delete: if false;
+      allow create, update: if googleAccount() && request.auth.uid == uid
+        && exists(teamSecretPath())
+        && request.resource.data.keys().hasOnly(['code', 'updatedAt', 'updatedBy'])
+        && request.resource.data.keys().hasAll(['code', 'updatedAt', 'updatedBy'])
+        && request.resource.data.code is string
+        && request.resource.data.code.size() >= 8
+        && request.resource.data.code.size() <= 32
+        && request.resource.data.code == get(teamSecretPath()).data.code
+        && request.resource.data.updatedBy == request.auth.uid
+        && request.resource.data.updatedAt == request.time;
     }
     match /services/{serviceId} {
       allow get: if canUseService(serviceId) && isCurrent(serviceId);

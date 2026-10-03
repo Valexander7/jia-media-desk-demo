@@ -73,7 +73,7 @@ if (!config || !config.apiKey || !config.authDomain || !config.projectId || !con
     function serviceError(error, message) {
       if (member?.viaCode && error.code==="permission-denied") {
         clearListeners(); member=null;
-        showCodePrompt("Sunday access has changed. Enter the current code again, and confirm go-signals directly until this page reconnects.",true);
+        showCodePrompt("Access has changed. Enter the team password again, and confirm go-signals directly until this page reconnects.",true);
       } else { setMessage(message+error.message,true); render(); }
     }
     function render() {
@@ -81,7 +81,7 @@ if (!config || !config.apiKey || !config.authDomain || !config.projectId || !con
       // Brown warning only for real connection problems, not for the normal sign-in and code steps.
       $("connection").classList.toggle("warn",!live && Boolean(member));
       $("connection").classList.toggle("idle",!member);
-      $("connection").textContent=!user?"Not signed in yet. Sign in below to open the Sunday checklist.":busy?"Checking or saving. Please wait…":live?"Connected. Saved responses are shown below.":user&&!member?"Signed in. Enter the current Sunday code to open the live checklist.":"Connection unavailable or unverified. Confirm go-signals directly with the Floor Director.";
+      $("connection").textContent=!user?"Not signed in yet. Sign in below to open the Sunday checklist.":busy?"Checking or saving. Please wait…":live?"Connected. Saved responses are shown below.":user&&!member?"Signed in. Enter the team password to open the live checklist.":"Connection unavailable or unverified. Confirm go-signals directly with the Floor Director.";
       $("service-card").hidden=!member || !service;
       $("setup-card").hidden=!member || !service;
       $("operator-card").hidden=!member || member.role!=="shared" || !service;
@@ -280,27 +280,28 @@ if (!config || !config.apiKey || !config.authDomain || !config.projectId || !con
     $("show-code").addEventListener("click",()=>{
       const shown=$("sunday-code").type==="text";
       $("sunday-code").type=shown?"password":"text";
-      $("show-code").textContent=shown?"Show code":"Hide code";
+      $("show-code").textContent=shown?"Show password":"Hide password";
       $("show-code").setAttribute("aria-pressed",String(!shown));
     });
     $("code-form").addEventListener("submit",async event=>{
       event.preventDefault();
       if (!user || busy) return;
-      if (!navigator.onLine) { setMessage("Connect to the internet before entering the Sunday code.",true); return; }
+      if (!navigator.onLine) { setMessage("Connect to the internet before entering the team password.",true); return; }
       const code=$("sunday-code").value.trim();
-      if (code.length<8 || code.length>32) { setMessage("Check the Sunday code and try again.",true); return; }
+      if (code.length<8 || code.length>32) { setMessage("Check the team password and try again.",true); return; }
       busy=true; $("join-service").disabled=true; render();
       try {
         const pointer=await dbApi.getDocFromServer(dbApi.doc(db,"settings","current"));
         const id=pointer.exists()?pointer.data().serviceId:null;
         if (typeof id!=="string" || !/^\d{4}-\d{2}-\d{2}$/.test(id)) throw new Error("No current service is selected.");
-        await dbApi.setDoc(dbApi.doc(db,"services",id,"passes",user.uid),{
-          code, updatedAt:dbApi.serverTimestamp(), updatedBy:user.uid
-        });
+        const pass={code, updatedAt:dbApi.serverTimestamp(), updatedBy:user.uid};
+        // Team password first (remembered for later Sundays); this Sunday's old-style code still works.
+        try { await dbApi.setDoc(dbApi.doc(db,"teamPasses",user.uid),pass); }
+        catch (_) { await dbApi.setDoc(dbApi.doc(db,"services",id,"passes",user.uid),pass); }
         $("sunday-code").value="";
         location.reload();
       } catch(error) {
-        setMessage("Code not accepted, or the service is not open. Check with the Floor Director and try again.",true);
+        setMessage("Password not accepted, or the service is not open. Check with John or James and try again.",true);
       } finally { busy=false; $("join-service").disabled=false; render(); }
     });
     $("sign-out").addEventListener("click",()=>authApi.signOut(auth));
@@ -309,7 +310,7 @@ if (!config || !config.apiKey || !config.authDomain || !config.projectId || !con
     authApi.onAuthStateChanged(auth,async nextUser=>{
       clearListeners(); user=nextUser; member=null; userName="";
       $("code-card").hidden=true; $("sunday-code").value=""; $("sunday-code").type="password";
-      $("show-code").textContent="Show code"; $("show-code").setAttribute("aria-pressed","false");
+      $("show-code").textContent="Show password"; $("show-code").setAttribute("aria-pressed","false");
       $("auth-card").hidden=Boolean(user); $("sign-in").hidden=Boolean(user); $("sign-out").hidden=!user;
       if (!user) { setMessage(""); render(); return; }
       try {
@@ -322,12 +323,11 @@ if (!config || !config.apiKey || !config.authDomain || !config.projectId || !con
           const pointer=await dbApi.getDocFromServer(dbApi.doc(db,"settings","current"));
           const id=pointer.exists()?pointer.data().serviceId:null;
           if (typeof id!=="string" || !/^\d{4}-\d{2}-\d{2}$/.test(id)) { showCodePrompt("No current service is selected. Ask the Floor Director before entering a code.",true); return; }
-          const pass=await dbApi.getDocFromServer(dbApi.doc(db,"services",id,"passes",user.uid));
-          if (!pass.exists()) { showCodePrompt(`Signed in as ${user.email || "your Google account"}. Enter the current Sunday code to continue.`); return; }
+          // Reading the service only works with a valid team password (or this Sunday's code).
           try {
             const verified=await dbApi.getDocFromServer(dbApi.doc(db,"services",id));
             if (!verified.exists()) throw new Error("Service missing");
-          } catch (_) { showCodePrompt("The Sunday code has changed or expired. Enter the current code to continue.",true); return; }
+          } catch (_) { showCodePrompt(`Signed in as ${user.email || "your Google account"}. Enter the team password to continue. You only need to do this once.`); return; }
           member={role:"shared",viaCode:true};
         }
         setMessage(member.viaCode?`Signed in as ${user.email || "your Google account"}. Your changes are saved with this account and time.`:member.role==="shared"?"":member.role==="director"?"Floor Director view open.":"Your station view is open.");

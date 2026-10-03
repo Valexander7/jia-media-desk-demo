@@ -3,9 +3,9 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Sign in with your Google account and the Sunday code from the Floor Director.">
+  <meta name="description" content="Sign in with your Google account and the media team password.">
   <meta property="og:title" content="JIA Alabang · Sunday media checklist">
-  <meta property="og:description" content="Sign in with your Google account and the Sunday code from the Floor Director.">
+  <meta property="og:description" content="Sign in with your Google account and the media team password.">
   <meta property="og:image" content="https://jia-media-desk.firebaseapp.com/jia-logo-green.png">
   <meta property="og:url" content="https://jia-media-desk.firebaseapp.com/live.html">
   <meta property="og:type" content="website">
@@ -56,14 +56,14 @@
     <div class="banner idle" id="connection" role="status">Loading…</div>
     <section class="card" id="auth-card">
       <h1>Sunday media checklist</h1>
-      <p class="muted">Sign in with your own Google account, then enter the code from the Floor Director. Do not use the JIA Media password.</p>
+      <p class="muted">Sign in with your own Google account, then enter the media team password (once). Do not use the JIA Media Gmail password.</p>
       <div class="actions"><button id="sign-in" type="button" hidden>Sign in with Google</button></div>
     </section>
     <p id="message" class="muted" role="status" aria-live="polite" hidden></p>
     <section class="card" id="code-card" hidden>
-      <h2>Enter Sunday code</h2>
-      <p class="muted">This is the service code from the Floor Director, not your Google password. Your Google account and save times will be recorded with checklist changes.</p>
-      <form id="code-form"><label for="sunday-code">Sunday code</label><input id="sunday-code" name="code" type="password" minlength="8" maxlength="32" autocomplete="off" autocapitalize="off" spellcheck="false" required><div class="actions"><button id="show-code" class="secondary" type="button" aria-pressed="false">Show code</button><button id="join-service" type="submit">Open checklist</button></div></form>
+      <h2>Enter team password</h2>
+      <p class="muted">This is the media team password from John or James, not your Google password. You only enter it once on this account. Your name and save times are recorded with checklist changes.</p>
+      <form id="code-form"><label for="sunday-code">Team password</label><input id="sunday-code" name="code" type="password" minlength="8" maxlength="32" autocomplete="off" autocapitalize="off" spellcheck="false" required><div class="actions"><button id="show-code" class="secondary" type="button" aria-pressed="false">Show password</button><button id="join-service" type="submit">Open checklist</button></div></form>
     </section>
     <section class="card" id="service-card" hidden><div class="row"><h2 id="service-title" style="margin:0">Service</h2><span class="pill unknown" id="sync-pill">Checking</span></div><div class="scoreboard" aria-live="polite"><span class="big" id="ready-count">–</span><span class="of" id="ready-of">of 5 stations Ready</span></div><p class="progress" id="overall-progress" style="margin-top:0"></p><p id="service-note" class="muted small-note" style="margin:8px 0 0"></p><p id="account-note" class="muted small-note" style="margin:6px 0 0"></p></section>
     <section class="card" id="sunday-card" aria-label="This Sunday" hidden></section>
@@ -85,6 +85,6 @@
   </main>
   <script src="sunday-reminders.js?v=1"></script>
   <script src="live-config.js?v=3"></script>
-  <script type="module" src="live.js?v=11"></script>
+  <script type="module" src="live.js?v=12"></script>
 </body>
 </html>
