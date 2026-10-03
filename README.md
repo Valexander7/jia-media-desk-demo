@@ -1,6 +1,6 @@
 # JIA Media Desk
 
-The JIA Media Desk opens on a home screen of app tiles (`index.html`, John 2026-10-03): Sunday Checklist, Live Camera, Program Team, Program Flow (Drive link), and Demo, plus the "This Sunday" card. Its parts:
+The JIA Media Desk opens on a home screen of app tiles (`index.html`, John 2026-10-03): Sunday Checklist, Live Camera, Program Team, Program Flow and Media Run Sheet (Drive links), and Demo, plus the "This Sunday" card. Its parts:
 
 - `demo.html` is the public sample demo (moved from `index.html` on 2026-10-03; old demo links now land on the home screen). It has fictional service data and no account or shared storage. Demo changes reset when the page reloads.
 - `live.html` is the online Sunday checklist. It connects to the team-owned `jia-media-desk` Firebase project on the Spark no-cost plan. The current service is October 4, 2026. At the September 28 readback, the service was open, the September 27 service was closed, and no station responses or test passes remained.
