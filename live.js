@@ -4,13 +4,18 @@ const stations = [
   {id:"camera", name:"Camera", checks:["Camera powered and feed visible", "Stage clear and positions checked", "Walkie-talkie tested"]},
   {id:"livestream", name:"Livestream", checks:["OBS scenes and intro/outro loaded", "Camera and Focusrite audio visible in OBS", "Internet connection checked; second-device monitor ready"]},
   {id:"audio", name:"Audio", checks:["Mixer-to-Focusrite cable connected", "Preacher and worship mics checked", "Announcement mic checked"]},
-  {id:"onsite-projection", name:"Onsite Projection", checks:["Projector aligned and focused", "Lyrics and preaching slides loaded in FreeShow", "Videos and TV monitor tested"]},
+  {id:"onsite-projection", name:"Onsite Projection", checks:["Lyrics and preaching slides loaded in FreeShow", "Birthday banner and presenter checked", "Videos and TV monitor tested"]},
   {id:"fb-projection", name:"FB Live Projection", checks:["Lyrics and lower thirds checked", "Videos loaded and tested", "HDMI link to livestream laptop confirmed"]}
 ];
 const setupItems = [
   "Front lights opened correctly",
   "Speakers and audio switched on correctly",
-  "Projector, laptop, TV, and other media equipment switched on"
+  "Laptops, TV, and other media equipment switched on",
+  // Call time items from the Media Rules booth checklist (John, 2026-10-04).
+  "Media IDs on and all-black attire (Floor Director checked)",
+  "Phones on silent, bags under the table, only water in sealed bottles",
+  "Slides and lyrics checked against the lineup",
+  "Team prayer done"
 ];
 const $ = id => document.getElementById(id);
 const config = window.MEDIA_DESK_FIREBASE_CONFIG;

@@ -81,10 +81,14 @@ service cloud.firestore {
       let data = request.resource.data;
       return data.keys().hasOnly(['checks', 'complete', 'updatedAt', 'updatedBy', 'updatedByName'])
         && data.keys().hasAll(['checks', 'complete', 'updatedAt', 'updatedBy'])
-        && data.checks is list && data.checks.size() == 3
+        // 3 church setup checks, then 4 media call time checks (live.js setupItems).
+        && data.checks is list && data.checks.size() == 7
         && data.checks[0] is bool && data.checks[1] is bool && data.checks[2] is bool
+        && data.checks[3] is bool && data.checks[4] is bool && data.checks[5] is bool
+        && data.checks[6] is bool
         && data.complete is bool
-        && (!data.complete || (data.checks[0] && data.checks[1] && data.checks[2]))
+        && (!data.complete || (data.checks[0] && data.checks[1] && data.checks[2]
+          && data.checks[3] && data.checks[4] && data.checks[5] && data.checks[6]))
         && data.updatedBy == request.auth.uid
         && data.updatedAt == request.time
         && validName(data);
