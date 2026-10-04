@@ -2,12 +2,13 @@
 
 // Recurring Sunday items. Source: Program Flow (Drive) and John, 2026-10-01 / 2026-10-03.
 // "when" is one of: "every", "1st", "2nd", "3rd", "4th", "last".
+// "{nextMonth}" in text becomes the next month's name (John, 2026-10-04: last Sunday of October calls November celebrants).
 // Later these rows move to the Drive checklist sheet so the media leaders can edit them.
 const SUNDAY_RULES = [
   {when:"1st",   text:"Breaking of the Bread", team:"Program · Helps & Ushering"},
   {when:"3rd",   text:"Breaking of the Bread", team:"Program · Helps & Ushering"},
   {when:"4th",   text:"Homogeneous hosting", team:"Program"},  // John, 2026-10-03: 4th Sunday, not last
-  {when:"last",  text:"Call this month's birthday celebrants on stage; birthday green-screen banner ready", team:"Program · Onsite Projection"},
+  {when:"last",  text:"Call {nextMonth} birthday celebrants on stage after service; birthday green-screen banner ready", team:"Program · Onsite Projection"},
   {when:"every", text:"New FB Live thumbnail for this Sunday", team:"Visual", saturday:true}
 ];
 
@@ -30,6 +31,12 @@ function upcomingSunday(now = new Date()) {
   return new Date(today.getTime() + ((7 - today.getUTCDay()) % 7) * 86400000);
 }
 
+// Rule text for this Sunday, with {nextMonth} filled in.
+function ruleText(rule, sunday) {
+  const next = new Date(Date.UTC(sunday.getUTCFullYear(), sunday.getUTCMonth() + 1, 1, 12));
+  return rule.text.replace("{nextMonth}", new Intl.DateTimeFormat("en-PH", {timeZone:"UTC", month:"long"}).format(next));
+}
+
 // Does this rule apply on this Sunday? sunday is a Date at noon UTC; use getUTCDate()/getUTCMonth().
 function matchesRule(rule, sunday) {
   if (rule.when === "every") return true;
@@ -46,7 +53,7 @@ function renderSundayCard(target, now = new Date()) {
   const sunday = upcomingSunday(now);
   const sundayDate = sunday.toISOString().slice(0, 10);
   const items = [
-    ...SUNDAY_RULES.filter(rule => matchesRule(rule, sunday)),
+    ...SUNDAY_RULES.filter(rule => matchesRule(rule, sunday)).map(rule => ({...rule, text:ruleText(rule, sunday)})),
     ...CHURCH_EVENTS.filter(ev => ev.date === sundayDate).map(ev => ({when:"event", text:ev.text, team:ev.team}))
   ];
   const label = new Intl.DateTimeFormat("en-PH", {timeZone:"UTC", weekday:"long", month:"long", day:"numeric"}).format(sunday);

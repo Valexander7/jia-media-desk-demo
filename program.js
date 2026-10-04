@@ -37,7 +37,7 @@ function autoItems(date) {
   const items=[];
   const d=new Date(`${date}T12:00:00Z`);
   if(typeof SUNDAY_RULES!=="undefined" && d.getUTCDay()===0) {
-    for(const rule of SUNDAY_RULES) if(rule.when!=="every" && matchesRule(rule,d)) items.push({date,title:rule.text,type:"Monthly",owner:rule.team});
+    for(const rule of SUNDAY_RULES) if(rule.when!=="every" && matchesRule(rule,d)) items.push({date,title:ruleText(rule,d),type:"Monthly",owner:rule.team});
   }
   if(typeof CHURCH_EVENTS!=="undefined") for(const ev of CHURCH_EVENTS) if(ev.date===date) items.push({date,title:ev.text,type:"Church event",owner:ev.team});
   return items;
