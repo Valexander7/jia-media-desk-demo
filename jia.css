@@ -1,7 +1,7 @@
 /* JIA Media Desk shared look. Colours and fonts come from the JIA Alabang design system
    (Claude Design, tokens.json v2): green-dark, sage, green-mid, near-black, white; Anton for
    titles, Montserrat for everything else. Page files keep only their own layout rules. */
-@import url("https://fonts.googleapis.com/css2?family=Anton&family=Montserrat:wght@400;500;600;700;800&display=swap");
+/* Fonts are linked from each page's <head> (not @import here) so they start downloading at once. */
 
 :root {
   color-scheme: light;

@@ -50,7 +50,7 @@ if (!config?.apiKey) {
   setMessage("Live camera is not set up on this copy of the site.", true);
 } else {
   try {
-    const version = "12.19.0";
+    const version = "12.19.0"; // keep in step with the modulepreload links in the .html head
     const [{initializeApp}, authApi, dbApi] = await Promise.all([
       import(`https://www.gstatic.com/firebasejs/${version}/firebase-app.js`),
       import(`https://www.gstatic.com/firebasejs/${version}/firebase-auth.js`),
