@@ -53,6 +53,15 @@
     .small-note { font-size:.88rem; }
     .footer { margin-top:18px; }
     .footer a { display:inline-flex; align-items:center; min-height:44px; }
+    .edit-section { border:0; border-top:2px solid var(--sage); margin:16px 0 0; padding:12px 0 0; min-width:0; }
+    .edit-section legend { font-weight:800; padding:0 6px 0 0; }
+    /* Full-width box that wraps long items so the whole wording is readable on a phone */
+    .edit-row { margin-top:10px; }
+    .edit-row textarea { display:block; width:100%; min-height:44px; border:1px solid #9db49e; border-radius:9px; padding:8px 10px; resize:vertical; line-height:1.35; }
+    .edit-tools { display:flex; gap:6px; justify-content:flex-end; margin-top:6px; }
+    .edit-tools button { min-height:44px; min-width:40px; padding:0 8px; }
+    .edit-section > button { margin-top:10px; min-height:44px; }
+    #editor-note:empty { display:none; }
     #code-form label { display:block; font-weight:700; margin-bottom:6px; }
     #sunday-code { width:100%; min-height:48px; border:1px solid #9db49e; border-radius:9px; padding:10px 12px; letter-spacing:.08em; }
     @media (max-width:360px) { .shell { padding-left:10px; padding-right:10px; } .card { padding:14px; } .jia-header img { width:40px; height:40px; } }
@@ -85,7 +94,15 @@
     <section class="card" id="operator-card" hidden><h2>2 · Station checks</h2><p class="muted">Work down the list. Each station needs every box ticked and a final Ready tap.</p><div id="operator-stations"></div></section>
     <section class="card" id="lead-card" hidden><div class="row"><h2 id="station-title">Station</h2><span class="pill unknown" id="station-pill">Waiting</span></div><p class="muted" id="station-update"></p><div class="checks" id="checks"></div><div class="actions"><button id="ready-button" type="button">Mark ready</button></div><p class="muted" id="station-access-note" style="margin:13px 0 0"></p></section>
     <section class="card" id="director-card" hidden><h2>3 · Handoff</h2><p id="director-count" class="progress"></p><div class="stations" id="stations"></div><p class="muted" style="margin:14px 0 0">Show this screen to the Floor Director. They still confirm the actual go-signal with each station before service starts.</p><a href="https://docs.google.com/spreadsheets/d/1ItieZgLx6cOteA-jBNAFiQaqH71Zr6w1y_Wyo9wKMaw/edit" target="_blank" rel="noopener noreferrer">Open JIA A&amp;B Media run sheet ↗</a></section>
-    <div class="actions"><button id="sign-out" class="secondary" type="button" hidden>Sign out</button></div>
+    <section class="card" id="editor-card" hidden>
+      <h2>Edit checklist</h2>
+      <p class="muted small-note">Changes show on everyone's phone as soon as you save. Fixing an item's wording keeps its ticks; a new item starts unticked, so that station goes back to Waiting until someone ticks it.</p>
+      <p class="muted small-note" id="editor-meta"></p>
+      <div id="editor-lists"></div>
+      <p class="error" id="editor-note" role="status" aria-live="polite"></p>
+      <div class="actions"><button id="editor-save" type="button">Save checklist</button><button id="editor-cancel" class="secondary" type="button">Cancel</button></div>
+    </section>
+    <div class="actions"><button id="edit-checklist" class="secondary" type="button" hidden>Edit checklist</button><button id="sign-out" class="secondary" type="button" hidden>Sign out</button></div>
     <div class="footer">
       <p class="note" role="note"><strong>Trial version.</strong> The Drive Program Flow is still the instruction source, and the Floor Director confirms every go-signal.</p>
       <a href="https://drive.google.com/file/d/1SWlV6LEeAKeF2pVnzaVrCRnKNvO9rhD2/view" target="_blank" rel="noopener noreferrer">Open Program Flow in Drive ↗</a> <small class="muted">Checked September 27, 2026</small>
@@ -94,6 +111,6 @@
   <script src="sunday-reminders.js?v=4"></script>
   <script src="live-config.js?v=3"></script>
   <script src="signin-help.js?v=1"></script>
-  <script type="module" src="live.js?v=14"></script>
+  <script type="module" src="live.js?v=16"></script>
 </body>
 </html>

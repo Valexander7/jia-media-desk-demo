@@ -60,15 +60,32 @@ service cloud.firestore {
         || (data.updatedByName is string && data.updatedByName.size() <= 60
           && data.updatedByName == request.auth.token.name);
     }
+    // Checklist items are edited on the site (John, 2026-10-04, C1/D1/E1) and live in config/checklist.
+    // Each item has a fixed id; a saved response keeps only the ids that are ticked, so ticks stay
+    // with their item when others are added, removed or reordered.
+    function checklistPath() { return /databases/$(database)/documents/config/checklist; }
+    function editorsPath() { return /databases/$(database)/documents/config/editors; }
+    function isEditor() {
+      return googleAccount() && exists(editorsPath())
+        && request.auth.token.email in get(editorsPath()).data.emails;
+    }
+    // Ready/Complete needs every current item ticked. Before anyone saves the checklist once,
+    // the page's built-in list is used and only the page checks this.
+    function allTicked(data, listName) {
+      return !exists(checklistPath())
+        || data.ticks.keys().hasAll(get(checklistPath()).data.lists[listName].ids);
+    }
+    function validTicks(data) {
+      return data.ticks is map && data.ticks.size() <= 30 && data.ticks.values().hasOnly([true]);
+    }
     function validResponse(stationId) {
       let data = request.resource.data;
       return stationId in ['camera', 'livestream', 'audio', 'onsite-projection', 'fb-projection']
-        && data.keys().hasOnly(['checks', 'ready', 'updatedAt', 'updatedBy', 'updatedByName'])
-        && data.keys().hasAll(['checks', 'ready', 'updatedAt', 'updatedBy'])
-        && data.checks is list && data.checks.size() == 3
-        && data.checks[0] is bool && data.checks[1] is bool && data.checks[2] is bool
+        && data.keys().hasOnly(['ticks', 'ready', 'updatedAt', 'updatedBy', 'updatedByName'])
+        && data.keys().hasAll(['ticks', 'ready', 'updatedAt', 'updatedBy'])
+        && validTicks(data)
         && data.ready is bool
-        && (!data.ready || (data.checks[0] && data.checks[1] && data.checks[2]))
+        && (!data.ready || allTicked(data, stationId))
         && data.updatedBy == request.auth.uid
         && data.updatedAt == request.time
         && validName(data);
@@ -79,16 +96,11 @@ service cloud.firestore {
     }
     function validSetup() {
       let data = request.resource.data;
-      return data.keys().hasOnly(['checks', 'complete', 'updatedAt', 'updatedBy', 'updatedByName'])
-        && data.keys().hasAll(['checks', 'complete', 'updatedAt', 'updatedBy'])
-        // 3 church setup checks, then 4 media call time checks (live.js setupItems).
-        && data.checks is list && data.checks.size() == 7
-        && data.checks[0] is bool && data.checks[1] is bool && data.checks[2] is bool
-        && data.checks[3] is bool && data.checks[4] is bool && data.checks[5] is bool
-        && data.checks[6] is bool
+      return data.keys().hasOnly(['ticks', 'complete', 'updatedAt', 'updatedBy', 'updatedByName'])
+        && data.keys().hasAll(['ticks', 'complete', 'updatedAt', 'updatedBy'])
+        && validTicks(data)
         && data.complete is bool
-        && (!data.complete || (data.checks[0] && data.checks[1] && data.checks[2]
-          && data.checks[3] && data.checks[4] && data.checks[5] && data.checks[6]))
+        && (!data.complete || allTicked(data, 'setup'))
         && data.updatedBy == request.auth.uid
         && data.updatedAt == request.time
         && validName(data);
@@ -105,6 +117,40 @@ service cloud.firestore {
         && validName(data);
     }
 
+    // One list per section: {items:[{id, label}], ids:[same ids, in order]}. ids lets the rules
+    // check Ready without reading every item. version goes up by one per save, so two editors
+    // saving at once can't silently overwrite each other.
+    function validList(list) {
+      return list is map && list.keys().hasOnly(['items', 'ids'])
+        && list.items is list && list.items.size() >= 1 && list.items.size() <= 20
+        && list.ids is list && list.ids.size() == list.items.size();
+    }
+    function validChecklist() {
+      let data = request.resource.data;
+      let lists = data.lists;
+      return data.keys().hasOnly(['lists', 'version', 'updatedAt', 'updatedBy', 'updatedByName'])
+        && data.keys().hasAll(['lists', 'version', 'updatedAt', 'updatedBy'])
+        && lists is map
+        && lists.keys().hasOnly(['setup', 'camera', 'livestream', 'audio', 'onsite-projection', 'fb-projection'])
+        && lists.keys().hasAll(['setup', 'camera', 'livestream', 'audio', 'onsite-projection', 'fb-projection'])
+        && validList(lists.setup) && validList(lists.camera) && validList(lists.livestream)
+        && validList(lists.audio) && validList(lists['onsite-projection']) && validList(lists['fb-projection'])
+        && data.version == (resource == null ? 1 : resource.data.version + 1)
+        && data.updatedBy == request.auth.uid
+        && data.updatedAt == request.time
+        && validName(data);
+    }
+    match /config/checklist {
+      allow get: if googleAccount() || isMember();
+      allow create, update: if isEditor() && validChecklist();
+      allow list, delete: if false;
+    }
+    // Editors list ({emails: [...]}) is set by the owner in the Firebase console. A person can read
+    // it only if they are on it, which is how the page knows to show the Edit button.
+    match /config/editors {
+      allow get: if googleAccount() && request.auth.token.email in resource.data.emails;
+      allow list, write: if false;
+    }
     match /members/{uid} {
       allow get: if signedIn() && request.auth.uid == uid;
       allow list, write: if false;

@@ -16,6 +16,15 @@ The live page shows a "This Sunday" card for the coming Sunday in Manila time: B
 
 The director's page sends a heartbeat every 5 seconds, so it must stay open. A camera phone that hears nothing for 15 seconds turns grey ("Not connected") instead of showing an old answer; grey means follow the director's voice cue. The page asks the phone to keep its screen on. It is not linked from the other pages yet; the media leaders approve before the team uses it.
 
+## Editing the checklist (from 2026-10-04)
+
+Checklist items are edited on the site, not in code (John, C1/D1/E1). Accounts on the editors list see **Edit checklist** at the bottom of `live.html`: reword, add, remove and reorder items in Church setup and each station, then Save. Everyone's page updates right away.
+
+- The list is saved in `config/checklist` (`lists.{setup|camera|...}.items` = `[{id, label}]`, plus `ids` in the same order, and a `version` that goes up by one per save so two editors can't overwrite each other). Until the first save, the built-in lists in `live.js` are used, with ids like `camera-1`.
+- Ticks are saved by item id (`ticks: {itemId: true}`), so rewording or moving an item keeps its tick. A new item starts unticked, so that station shows Waiting until it's ticked. The rules refuse Ready/Complete unless every current item is ticked.
+- Editors: the owner sets `config/editors` = `{emails: ["...", "..."]}` in the Firebase console (Firestore > Add document). Emails are Google sign-in emails in lowercase. Nobody can change this list from the site, and only people on it can read it.
+- Up to 20 items per section, 120 characters each.
+
 ## Sunday checklist access
 
 **Current access (John, 2026-10-03): Google sign-in only.** Any verified Google account can open and tick the current open Sunday and switch the camera tally; no password or code. Closed Sundays, the current-Sunday pointer and private documents stay locked. To go back to a password, swap `googleAccount()` for `hasTeamPassword()` in `canUseService`, `canWriteStation` and `canWriteSetup` in `firestore.rules`; the team-password parts below are kept for that.
