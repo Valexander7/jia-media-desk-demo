@@ -1,14 +1,19 @@
 "use strict";
 
-// Recurring Sunday items. Source: Program Flow (Drive) and John, 2026-10-01.
+// Recurring Sunday items. Source: Program Flow (Drive) and John, 2026-10-01 / 2026-10-03.
 // "when" is one of: "every", "1st", "2nd", "3rd", "4th", "last".
 // Later these rows move to the Drive checklist sheet so the media leaders can edit them.
 const SUNDAY_RULES = [
   {when:"1st",   text:"Breaking of the Bread", team:"Program · Helps & Ushering"},
   {when:"3rd",   text:"Breaking of the Bread", team:"Program · Helps & Ushering"},
-  {when:"last",  text:"Homogeneous hosting", team:"Program"},
+  {when:"4th",   text:"Homogeneous hosting", team:"Program"},  // John, 2026-10-03: 4th Sunday, not last
   {when:"last",  text:"Call this month's birthday celebrants on stage; birthday green-screen banner ready", team:"Program · Onsite Projection"},
   {when:"every", text:"New FB Live thumbnail for this Sunday", team:"Visual", saturday:true}
+];
+
+// One-off church events shown on the Program calendar. Add a row per event; no birthdays or minors' names (public page).
+const CHURCH_EVENTS = [
+  {date:"2026-10-11", text:"Pastor's Appreciation", team:"Program · Media"}
 ];
 
 // Today's calendar date in Manila, as a Date at noon UTC, so day-of-month maths can't slip across midnight.
