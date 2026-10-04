@@ -13,7 +13,7 @@ const SUNDAY_RULES = [
 
 // One-off church events shown on the Program calendar. Add a row per event; no birthdays or minors' names (public page).
 const CHURCH_EVENTS = [
-  {date:"2026-10-04", text:"Call September birthday celebrants on stage after service (catch-up, missed Sep 27)", team:"Program · Onsite Projection"},
+  {date:"2026-10-04", text:"Call October birthday celebrants on stage after service", team:"Program · Onsite Projection"},
   {date:"2026-10-11", text:"Pastor's Appreciation", team:"Program · Media"}
 ];
 
