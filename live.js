@@ -408,40 +408,11 @@ if (!config || !config.apiKey || !config.authDomain || !config.projectId || !con
       try { await authApi.signInWithRedirect(auth,provider); }
       catch(error) { setMessage(signin.plainError(error),true); }
     });
-    $("show-code").addEventListener("click",()=>{
-      const shown=$("sunday-code").type==="text";
-      $("sunday-code").type=shown?"password":"text";
-      $("show-code").textContent=shown?"Show password":"Hide password";
-      $("show-code").setAttribute("aria-pressed",String(!shown));
-    });
-    $("code-form").addEventListener("submit",async event=>{
-      event.preventDefault();
-      if (!user || busy) return;
-      if (!navigator.onLine) { setMessage("Connect to the internet before entering the team password.",true); return; }
-      const code=$("sunday-code").value.trim();
-      if (code.length<8 || code.length>32) { setMessage("Check the team password and try again.",true); return; }
-      busy=true; $("join-service").disabled=true; render();
-      try {
-        const pointer=await dbApi.getDocFromServer(dbApi.doc(db,"settings","current"));
-        const id=pointer.exists()?pointer.data().serviceId:null;
-        if (typeof id!=="string" || !/^\d{4}-\d{2}-\d{2}$/.test(id)) throw new Error("No current service is selected.");
-        const pass={code, updatedAt:dbApi.serverTimestamp(), updatedBy:user.uid};
-        // Team password first (remembered for later Sundays); this Sunday's old-style code still works.
-        try { await dbApi.setDoc(dbApi.doc(db,"teamPasses",user.uid),pass); }
-        catch (_) { await dbApi.setDoc(dbApi.doc(db,"services",id,"passes",user.uid),pass); }
-        $("sunday-code").value="";
-        location.reload();
-      } catch(error) {
-        setMessage("Password not accepted, or the service is not open. Check with John or James and try again.",true);
-      } finally { busy=false; $("join-service").disabled=false; render(); }
-    });
     $("sign-out").addEventListener("click",()=>authApi.signOut(auth));
     window.addEventListener("online",render);
     window.addEventListener("offline",render);
     authApi.onAuthStateChanged(auth,async nextUser=>{
       clearListeners(); user=nextUser; member=null; userName="";
-      $("code-card").hidden=true; $("sunday-code").value=""; $("sunday-code").type="password";
-      $("show-code").textContent="Show password"; $("show-code").setAttribute("aria-pressed","false");
       $("auth-card").hidden=Boolean(user); $("sign-in").hidden=Boolean(user); $("sign-out").hidden=!user;
       if (!user) { setMessage(signin.inAppBrowser()?signin.inAppHelp:""); render(); return; }
       // Each await below can finish after the person signed out or switched account; stop if so.

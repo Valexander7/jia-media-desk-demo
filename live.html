@@ -70,8 +70,6 @@
     .edit-tools button { min-height:44px; min-width:40px; padding:0 8px; }
     .edit-section > button { margin-top:10px; min-height:44px; }
     #editor-note:empty { display:none; }
-    #code-form label { display:block; font-weight:700; margin-bottom:6px; }
-    #sunday-code { width:100%; min-height:48px; border:1px solid #9db49e; border-radius:9px; padding:10px 12px; letter-spacing:.08em; }
     @media (max-width:360px) { .shell { padding-left:10px; padding-right:10px; } .card { padding:14px; } .jia-header img { width:40px; height:40px; } }
   </style>
 </head>
@@ -85,11 +83,6 @@
       <div class="actions"><button id="sign-in" type="button" hidden>Sign in with Google</button></div>
     </section>
     <p id="message" class="muted" role="status" aria-live="polite" hidden></p>
-    <section class="card" id="code-card" hidden>
-      <h2>Enter team password</h2>
-      <p class="muted">This is the media team password from John or James, not your Google password. You only enter it once on this account. Your name and save times are recorded with checklist changes.</p>
-      <form id="code-form"><label for="sunday-code">Team password</label><input id="sunday-code" name="code" type="password" minlength="8" maxlength="32" autocomplete="off" autocapitalize="off" spellcheck="false" required><div class="actions"><button id="show-code" class="secondary" type="button" aria-pressed="false">Show password</button><button id="join-service" type="submit">Open checklist</button></div></form>
-    </section>
     <section class="card" id="service-card" hidden><div class="row"><h2 id="service-title" style="margin:0">Service</h2><span class="pill unknown" id="sync-pill">Checking</span></div><div class="scoreboard" aria-live="polite"><span class="big" id="ready-count">–</span><span class="of" id="ready-of">of 5 stations Ready</span></div><p class="progress" id="overall-progress" style="margin-top:0"></p><p id="service-note" class="muted small-note" style="margin:8px 0 0"></p><p id="account-note" class="muted small-note" style="margin:6px 0 0"></p></section>
     <section class="card" id="sunday-card" aria-label="This Sunday" hidden></section>
     <section class="card" id="setup-card" hidden>
@@ -119,6 +112,6 @@
   <script src="sunday-reminders.js?v=4"></script>
   <script src="live-config.js?v=3"></script>
   <script src="signin-help.js?v=1"></script>
-  <script type="module" src="live.js?v=16"></script>
+  <script type="module" src="live.js?v=17"></script>
 </body>
 </html>
