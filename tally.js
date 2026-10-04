@@ -63,7 +63,8 @@ if (!config?.apiKey) {
       authApi.connectAuthEmulator(auth, "http://127.0.0.1:9099", {disableWarnings: true});
       dbApi.connectFirestoreEmulator(db, "127.0.0.1", 8080);
     }
-    authApi.getRedirectResult(auth).catch(error => setMessage("Google sign-in did not finish. Try again. " + error.message, true));
+    const signin = window.MEDIA_DESK_SIGNIN;
+    authApi.getRedirectResult(auth).catch(error => setMessage(signin.plainError(error), true));
 
     let user = null, userName = "", serviceId = null, liveCam = null, fresh = false, busy = false;
     let role = readRole(), lastLiveCam = null, lastHeard = 0;
@@ -106,6 +107,9 @@ if (!config?.apiKey) {
         const mine = role === "cam1" ? 1 : role === "cam2" ? 2 : null;
         if (fresh && mine && liveCam === mine && lastLiveCam !== mine && navigator.vibrate) navigator.vibrate(200);
         if (fresh) { lastLiveCam = liveCam; lastHeard = Date.now(); }
+        // A new Sunday has no tally yet, so the heartbeat (an update) had nothing to touch and every
+        // phone went grey 15 s in. The director's page creates it as "No camera" first.
+        if (fresh && !snap.exists() && role === "director") createTally(id);
         render();
       }, error => {
         fresh = false;
@@ -130,14 +134,23 @@ if (!config?.apiKey) {
     }, HEARTBEAT_MS);
     setInterval(render, 2000);
 
+    function author() { return userName && userName.length <= 60 ? {updatedByName: userName} : {}; }
+    // Transaction so it never overwrites a tap from another director phone that landed first.
+    function createTally(id) {
+      const ref = dbApi.doc(db, "services", id, "tally", "live");
+      dbApi.runTransaction(db, async tx => {
+        if ((await tx.get(ref)).exists()) return;
+        tx.set(ref, {cam: 0, updatedAt: dbApi.serverTimestamp(), updatedBy: user.uid, ...author()});
+      }).catch(() => {});
+    }
+
     async function setCam(cam) {
       if (!user || !serviceId || busy) return;
       busy = true; render();
       try {
         // Last tap wins on purpose: the director's newest choice is the truth, so no transaction.
         await dbApi.setDoc(dbApi.doc(db, "services", serviceId, "tally", "live"), {
-          cam, updatedAt: dbApi.serverTimestamp(), updatedBy: user.uid,
-          ...(userName && userName.length <= 60 ? {updatedByName: userName} : {})
+          cam, updatedAt: dbApi.serverTimestamp(), updatedBy: user.uid, ...author()
         });
       } catch (error) {
         setMessage("Not sent. Use your voice cue. " + error.message, true);
@@ -150,7 +163,10 @@ if (!config?.apiKey) {
     $("switcher").addEventListener("click", event => {
       const b = event.target.closest("[data-cam]"); if (b) setCam(Number(b.dataset.cam));
     });
-    $("sign-in").addEventListener("click", () => authApi.signInWithRedirect(auth, new authApi.GoogleAuthProvider()).catch(e => setMessage("Sign-in failed: " + e.message, true)));
+    $("sign-in").addEventListener("click", () => {
+      if (signin.inAppBrowser()) { setMessage(signin.inAppHelp, true); return; }
+      authApi.signInWithRedirect(auth, new authApi.GoogleAuthProvider()).catch(e => setMessage(signin.plainError(e), true));
+    });
     $("sign-out").addEventListener("click", () => authApi.signOut(auth));
     window.addEventListener("online", render);
     window.addEventListener("offline", render);
@@ -159,8 +175,9 @@ if (!config?.apiKey) {
       if (stopTally) stopTally(); if (stopPointer) stopPointer();
       stopTally = stopPointer = null; serviceId = null; liveCam = null; fresh = false;
       user = nextUser; userName = "";
-      if (!user) { setMessage(""); render(); return; }
+      if (!user) { setMessage(signin.inAppBrowser() ? signin.inAppHelp : "", signin.inAppBrowser()); render(); return; }
       try { const token = await user.getIdTokenResult(); userName = typeof token.claims.name === "string" ? token.claims.name : ""; } catch (_) {}
+      if (user !== nextUser) return; // signed out or switched account while waiting
       stopPointer = dbApi.onSnapshot(dbApi.doc(db, "settings", "current"), snap => {
         const id = snap.exists() ? snap.data().serviceId : null;
         if (typeof id !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(id)) { setMessage("No Sunday is open yet. Ask John or James.", true); return; }

@@ -49,7 +49,7 @@ The live page contains a three-item **Before pre-worship** church setup checklis
 
 The [Program Flow](https://drive.google.com/file/d/1SWlV6LEeAKeF2pVnzaVrCRnKNvO9rhD2/view), run sheets, procedures, assets, and incident log remain in Google Drive as the official sources. The website does not copy those records. The Program Team preview is not the live Sunday program or calendar.
 
-On September 27, Safari sign-in through GitHub Pages showed Firebase's “missing initial state” error. The live page now uses `https://jia-media-desk.firebaseapp.com/live.html` and Google redirect sign-in on the Firebase domain. The GitHub Pages live link forwards to Firebase Hosting. John later reported that the phone sign-in problem was fixed.
+On September 27, Safari sign-in through GitHub Pages showed Firebase's “missing initial state” error. The live page now uses `https://jia-media-desk.firebaseapp.com/live.html` and Google redirect sign-in on the Firebase domain. The GitHub Pages live link forwards to Firebase Hosting. John later reported that the phone sign-in problem was fixed. `tally.html` forwards from web.app the same way (2026-10-04). `signin-help.js` warns people who open a link inside Messenger, Facebook or Instagram (Google blocks sign-in there) to open it in Safari or Chrome, and turns sign-in errors into plain words.
 
 ## Owner steps for a future Sunday
 
