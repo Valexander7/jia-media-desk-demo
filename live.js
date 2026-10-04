@@ -102,6 +102,7 @@ if (!config || !config.apiKey || !config.authDomain || !config.projectId || !con
       $("overall-progress").textContent=live?`Church setup ${setup?.complete?"Complete":"Waiting"} · ${completedChecks} of ${totalChecks} checks`:"Progress cannot be verified.";
       $("setup-pill").textContent=live?(setup?.complete?"Complete":"Waiting"):"Unverified";
       $("setup-pill").className="pill "+(live?(setup?.complete?"ready":""):"unknown");
+      $("setup-card").classList.toggle("done",live && setup?.complete===true);
       $("setup-progress").textContent=live?`${setupChecks.filter(Boolean).length} of ${setupItems.length} checks saved · ${stamp(setup?.updatedAt,setup?.updatedBy,setup?.updatedByName)}`:"Setup status cannot be verified right now.";
       $("setup-checks").replaceChildren(...setupItems.map((label,i)=>{
         const row=document.createElement("label"); row.className="check";
@@ -116,7 +117,7 @@ if (!config || !config.apiKey || !config.authDomain || !config.projectId || !con
         $("operator-stations").replaceChildren(...stations.map((station,index)=>{
           const saved=readiness[station.id];
           const checks=Array.isArray(saved?.checks)&&saved.checks.length===station.checks.length?saved.checks:station.checks.map(()=>false);
-          const section=document.createElement("section"); section.className="station-card";
+          const section=document.createElement("section"); section.className="station-card"+(live&&saved?.ready?" done":"");
           const head=document.createElement("div"); head.className="row";
           const title=document.createElement("h2"); title.textContent=`${index+1}. ${station.name}`;
           const pill=document.createElement("span"); pill.className="pill "+(live?(saved?.ready?"ready":""):"unknown"); pill.textContent=live?(saved?.ready?"Ready":"Waiting"):"Unverified";

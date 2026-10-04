@@ -35,6 +35,14 @@
     .station-card { border-top:2px solid var(--sage); padding:16px 0 6px; }
     .station-card:first-child { border-top:0; padding-top:0; }
     .station-card .actions { margin-top:10px; }
+    /* Finished sections turn dark green so "done" reads at a glance */
+    #setup-card.done, .station-card.done { background:var(--green-dark); border-color:var(--green-dark); color:white; }
+    .station-card.done { border-radius:12px; padding:16px; margin-top:12px; }
+    .done .muted { color:var(--sage); }
+    .done .check { border-bottom-color:rgba(255,255,255,.22); }
+    .done .check input { accent-color:var(--sage); }
+    .done .pill.ready { background:white; }
+    .done .actions button { background:white; color:var(--green-dark); }
     .stations { display:grid; gap:9px; margin-top:14px; }
     .station { display:flex; gap:12px; align-items:center; justify-content:space-between; padding:13px; border:1px solid var(--line); border-radius:10px; }
     .error { color:#9a2b20; font-weight:700; }
