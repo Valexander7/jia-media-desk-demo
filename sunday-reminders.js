@@ -13,6 +13,7 @@ const SUNDAY_RULES = [
 
 // One-off church events shown on the Program calendar. Add a row per event; no birthdays or minors' names (public page).
 const CHURCH_EVENTS = [
+  {date:"2026-10-04", text:"Call September birthday celebrants on stage after service (catch-up, missed Sep 27)", team:"Program · Onsite Projection"},
   {date:"2026-10-11", text:"Pastor's Appreciation", team:"Program · Media"}
 ];
 
@@ -43,7 +44,11 @@ function matchesRule(rule, sunday) {
 
 function renderSundayCard(target, now = new Date()) {
   const sunday = upcomingSunday(now);
-  const items = SUNDAY_RULES.filter(rule => matchesRule(rule, sunday));
+  const sundayDate = sunday.toISOString().slice(0, 10);
+  const items = [
+    ...SUNDAY_RULES.filter(rule => matchesRule(rule, sunday)),
+    ...CHURCH_EVENTS.filter(ev => ev.date === sundayDate).map(ev => ({when:"event", text:ev.text, team:ev.team}))
+  ];
   const label = new Intl.DateTimeFormat("en-PH", {timeZone:"UTC", weekday:"long", month:"long", day:"numeric"}).format(sunday);
   const isSaturday = manilaToday(now).getUTCDay() === 6;
 
