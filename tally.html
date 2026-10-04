@@ -8,7 +8,13 @@
   <link rel="icon" type="image/png" href="jia-logo-green.png">
   <link rel="apple-touch-icon" href="jia-logo-green.png">
   <title>JIA Alabang · Live camera</title>
-  <link rel="stylesheet" href="jia.css?v=1">
+  <script>
+    // Google sign-in only finishes in Safari on the same domain as authDomain (firebaseapp.com).
+    if (location.hostname === "jia-media-desk.web.app") {
+      location.replace("https://jia-media-desk.firebaseapp.com/tally.html" + location.search);
+    }
+  </script>
+  <link rel="stylesheet" href="jia.css?v=2">
   <style>
     body { background:var(--near-black); color:white; }
     .shell { max-width:760px; margin:auto; padding:12px 12px 32px; }
@@ -63,6 +69,7 @@
     <p class="footer">Trial. If this screen is grey or you are unsure, follow the director's voice cue. <button class="link" id="sign-out" type="button" hidden style="color:var(--sage)">Sign out</button></p>
   </main>
   <script src="live-config.js?v=3"></script>
-  <script type="module" src="tally.js?v=5"></script>
+  <script src="signin-help.js?v=1"></script>
+  <script type="module" src="tally.js?v=6"></script>
 </body>
 </html>

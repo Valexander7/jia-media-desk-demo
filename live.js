@@ -39,11 +39,13 @@ if (!config || !config.apiKey || !config.authDomain || !config.projectId || !con
       dbApi.connectFirestoreEmulator(db,"127.0.0.1",8080);
     }
     const provider = new authApi.GoogleAuthProvider();
-    authApi.getRedirectResult(auth).catch(error=>{
-      setMessage("Google sign-in did not finish. Open this page in Safari or Chrome and try again. "+error.message,true);
-    });
+    const signin=window.MEDIA_DESK_SIGNIN;
+    authApi.getRedirectResult(auth).catch(error=>setMessage(signin.plainError(error),true));
     let user = null, userName = "", member = null, serviceId = null, service = null;
     let readiness = {}, setup = null, pointerFresh = false, serviceFresh = false, readinessFresh = false, setupFresh = false, busy = false;
+    // everLive: this page has been confirmed live at least once. failed: opening the checklist hit an error.
+    // Together they keep the brown warning for real problems, not the normal few seconds of connecting.
+    let everLive = false, failed = false;
     let stopPointer = null, stopService = null, stopReadiness = null, stopSetup = null;
     function currentStation() {
       return stations.find(s=>s.id===member?.station);
@@ -57,6 +59,7 @@ if (!config || !config.apiKey || !config.authDomain || !config.projectId || !con
       stopReadiness = stopSetup = stopService = stopPointer = null;
       serviceId = null; service = null; readiness = {}; setup = null;
       pointerFresh = serviceFresh = readinessFresh = setupFresh = false;
+      everLive = failed = false;
     }
     function connected() { return Boolean(user && member && serviceId && service?.open && pointerFresh && serviceFresh && readinessFresh && setupFresh && navigator.onLine); }
     function accountId(uid) { return typeof uid==="string"?uid.slice(0,8):"unknown"; }
@@ -69,7 +72,7 @@ if (!config || !config.apiKey || !config.authDomain || !config.projectId || !con
       // The rules accept a name only when it matches the Google sign-in token exactly.
       return userName && userName.length<=60 ? {updatedByName:userName} : {};
     }
-    function setMessage(text, error=false) { $("message").textContent=text; $("message").className=error?"error":"muted"; $("message").hidden=!text; }
+    function setMessage(text, error=false) { if (error && user && !connected()) failed=true; $("message").textContent=text; $("message").className=error?"error":"muted"; $("message").hidden=!text; }
     function showCodePrompt(text, error=false) {
       $("code-card").hidden=false;
       setMessage(text,error);
@@ -83,10 +86,12 @@ if (!config || !config.apiKey || !config.authDomain || !config.projectId || !con
     }
     function render() {
       const live=connected();
-      // Brown warning only for real connection problems, not for the normal sign-in and code steps.
-      $("connection").classList.toggle("warn",!live && Boolean(member));
-      $("connection").classList.toggle("idle",!member);
-      $("connection").textContent=!user?"Not signed in yet. Sign in below to open the Sunday checklist.":busy?"Checking or saving. Please wait…":live?"Connected. Saved responses are shown below.":user&&!member?"Signed in. Opening this Sunday's checklist…":"Connection unavailable or unverified. Confirm go-signals directly with the Floor Director.";
+      if (live) { everLive=true; failed=false; }
+      // Brown warning only for real problems: an error, or a connection that was live and dropped.
+      const warn=!live && Boolean(user) && (failed || (Boolean(member) && everLive));
+      $("connection").classList.toggle("warn",warn);
+      $("connection").classList.toggle("idle",!live && !warn);
+      $("connection").textContent=!user?"Not signed in yet. Sign in below to open the Sunday checklist.":busy?"Checking or saving. Please wait…":live?"Connected. Saved responses are shown below.":failed?"Could not open the checklist (see the note below). Confirm go-signals directly with the Floor Director.":warn?"Connection lost or unverified. Confirm go-signals directly with the Floor Director.":"Signed in. Opening this Sunday's checklist…";
       $("service-card").hidden=!member || !service;
       $("setup-card").hidden=!member || !service;
       $("operator-card").hidden=!member || member.role!=="shared" || !service;
@@ -280,8 +285,9 @@ if (!config || !config.apiKey || !config.authDomain || !config.projectId || !con
       save(station.id,toggleDone(!readiness[station.id]?.ready));
     });
     $("sign-in").addEventListener("click",async()=>{
+      if (signin.inAppBrowser()) { setMessage(signin.inAppHelp,true); return; }
       try { await authApi.signInWithRedirect(auth,provider); }
-      catch(error) { setMessage("Sign-in failed: "+error.message,true); }
+      catch(error) { setMessage(signin.plainError(error),true); }
     });
     $("show-code").addEventListener("click",()=>{
       const shown=$("sunday-code").type==="text";
@@ -318,22 +324,28 @@ if (!config || !config.apiKey || !config.authDomain || !config.projectId || !con
       $("code-card").hidden=true; $("sunday-code").value=""; $("sunday-code").type="password";
       $("show-code").textContent="Show password"; $("show-code").setAttribute("aria-pressed","false");
       $("auth-card").hidden=Boolean(user); $("sign-in").hidden=Boolean(user); $("sign-out").hidden=!user;
-      if (!user) { setMessage(""); render(); return; }
+      if (!user) { setMessage(signin.inAppBrowser()?signin.inAppHelp:""); render(); return; }
+      // Each await below can finish after the person signed out or switched account; stop if so.
+      const stale=()=>user!==nextUser;
       try {
         try { const token=await user.getIdTokenResult(); userName=typeof token.claims.name==="string"?token.claims.name:""; } catch (_) { userName=""; }
+        if (stale()) return;
         const snap=await dbApi.getDocFromServer(dbApi.doc(db,"members",user.uid));
+        if (stale()) return;
         const data=snap.exists()?snap.data():null;
         if (data?.active && ["lead","director","shared"].includes(data.role) && (data.role!=="lead" || stations.some(s=>s.id===data.station))) {
           member=data;
         } else {
           const pointer=await dbApi.getDocFromServer(dbApi.doc(db,"settings","current"));
+          if (stale()) return;
           const id=pointer.exists()?pointer.data().serviceId:null;
           if (typeof id!=="string" || !/^\d{4}-\d{2}-\d{2}$/.test(id)) { setMessage("No Sunday is open yet. Ask John or James.",true); render(); return; }
           // Reading the service only works with a valid team password (or this Sunday's code).
           try {
             const verified=await dbApi.getDocFromServer(dbApi.doc(db,"services",id));
             if (!verified.exists()) throw new Error("Service missing");
-          } catch (_) { setMessage("Could not open this Sunday's checklist. Check with John or James.",true); render(); return; }
+          } catch (_) { if (!stale()) { setMessage("Could not open this Sunday's checklist. Check with John or James.",true); render(); } return; }
+          if (stale()) return;
           member={role:"shared",viaCode:true};
         }
         setMessage(member.viaCode?`Signed in as ${user.email || "your Google account"}. Your changes are saved with this account and time.`:member.role==="shared"?"":member.role==="director"?"Floor Director view open.":"Your station view is open.");
@@ -350,7 +362,7 @@ if (!config || !config.apiKey || !config.authDomain || !config.projectId || !con
           }
           render();
         },error=>{ pointerFresh=false; setMessage("Could not find the current service: "+error.message,true); render(); });
-      } catch(error) { setMessage("Could not verify this account: "+error.message,true); }
+      } catch(error) { if (stale()) return; setMessage("Could not verify this account: "+error.message,true); }
       render();
     });
   } catch(error) {
