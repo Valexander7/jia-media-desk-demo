@@ -2,7 +2,7 @@
 
 // Live camera tally. The director taps which camera is on air; each camera phone turns red when
 // it is that camera. One shared document per Sunday: services/{id}/tally/live = {cam: 0|1|2}.
-// Access is the same as the checklist: Google sign-in plus this Sunday's code (or the shared account).
+// Access is the same as the checklist: Google sign-in.
 const $ = id => document.getElementById(id);
 const config = window.MEDIA_DESK_FIREBASE_CONFIG;
 const ROLES = ["director", "cam1", "cam2"];

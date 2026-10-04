@@ -89,11 +89,6 @@ if (!config || !config.apiKey || !config.authDomain || !config.projectId || !con
       return userName && userName.length<=60 ? {updatedByName:userName} : {};
     }
     function setMessage(text, error=false) { if (error && user && !connected()) failed=true; $("message").textContent=text; $("message").className=error?"error":"muted"; $("message").hidden=!text; }
-    function showCodePrompt(text, error=false) {
-      $("code-card").hidden=false;
-      setMessage(text,error);
-      render();
-    }
     function serviceError(error, message) {
       if (member?.viaCode && error.code==="permission-denied") {
         clearListeners(); member=null;
