@@ -39,7 +39,7 @@ The Floor Director's direct go-signal is still the real confirmation. A Google a
 
 1. Create `services/YYYY-MM-DD` with `{date:"YYYY-MM-DD", open:true}`.
 2. Set `settings/current` to `{serviceId:"YYYY-MM-DD"}` and set the previous service to `open:false`.
-3. Check the five stations show Waiting before relying on it.
+3. Check the six stations (including CMA) show Waiting before relying on it.
 
 Clients can't write members, the current-Sunday pointer, service records or the editors list; the owner manages those in the console.
 

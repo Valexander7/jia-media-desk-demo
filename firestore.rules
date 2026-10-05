@@ -72,7 +72,10 @@ service cloud.firestore {
     // Ready/Complete needs every current item ticked. Before anyone saves the checklist once,
     // the page's built-in list is used and only the page checks this.
     function allTicked(data, listName) {
+      // A checklist saved before a section existed (e.g. CMA, added 2026-10-05) has no list for it;
+      // the page's built-in items apply until the next save.
       return !exists(checklistPath())
+        || !(listName in get(checklistPath()).data.lists)
         || data.ticks.keys().hasAll(get(checklistPath()).data.lists[listName].ids);
     }
     function validTicks(data) {
@@ -80,7 +83,7 @@ service cloud.firestore {
     }
     function validResponse(stationId) {
       let data = request.resource.data;
-      return stationId in ['camera', 'livestream', 'audio', 'onsite-projection', 'fb-projection']
+      return stationId in ['camera', 'livestream', 'audio', 'onsite-projection', 'fb-projection', 'cma']
         && data.keys().hasOnly(['ticks', 'ready', 'updatedAt', 'updatedBy', 'updatedByName'])
         && data.keys().hasAll(['ticks', 'ready', 'updatedAt', 'updatedBy'])
         && validTicks(data)
@@ -131,10 +134,11 @@ service cloud.firestore {
       return data.keys().hasOnly(['lists', 'version', 'updatedAt', 'updatedBy', 'updatedByName'])
         && data.keys().hasAll(['lists', 'version', 'updatedAt', 'updatedBy'])
         && lists is map
-        && lists.keys().hasOnly(['setup', 'camera', 'livestream', 'audio', 'onsite-projection', 'fb-projection'])
+        && lists.keys().hasOnly(['setup', 'camera', 'livestream', 'audio', 'onsite-projection', 'fb-projection', 'cma'])
         && lists.keys().hasAll(['setup', 'camera', 'livestream', 'audio', 'onsite-projection', 'fb-projection'])
         && validList(lists.setup) && validList(lists.camera) && validList(lists.livestream)
         && validList(lists.audio) && validList(lists['onsite-projection']) && validList(lists['fb-projection'])
+        && (!('cma' in lists) || validList(lists.cma))
         && data.version == (resource == null ? 1 : resource.data.version + 1)
         && data.updatedBy == request.auth.uid
         && data.updatedAt == request.time

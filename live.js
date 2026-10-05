@@ -5,7 +5,9 @@ const stations = [
   {id:"livestream", name:"Livestream", checks:["OBS scenes and intro/outro loaded", "Camera and Focusrite audio visible in OBS", "Internet connection checked; second-device monitor ready"]},
   {id:"audio", name:"Audio", checks:["Mixer-to-Focusrite cable connected", "Preacher and worship mics checked", "Announcement mic checked"]},
   {id:"onsite-projection", name:"Onsite Projection", checks:["Lyrics and preaching slides loaded in FreeShow", "Birthday banner and presenter checked", "Videos and TV monitor tested"]},
-  {id:"fb-projection", name:"FB Live Projection", checks:["Lyrics and lower thirds checked", "Videos loaded and tested", "HDMI link to livestream laptop confirmed"]}
+  {id:"fb-projection", name:"FB Live Projection", checks:["Lyrics and lower thirds checked", "Videos loaded and tested", "HDMI link to livestream laptop confirmed"]},
+  // CMA section requested by James Q (2026-10-04); John chose a full station with its own Ready (2026-10-05).
+  {id:"cma", name:"CMA", checks:["Musicians ready", "Singers ready", "Singers' placement on stage ready"]}
 ];
 const setupItems = [
   "Front lights opened correctly",
