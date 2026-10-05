@@ -4,6 +4,7 @@ The JIA Media Desk opens on a home screen of app tiles (`index.html`, John 2026-
 
 - `demo.html` is the public sample demo (moved from `index.html` on 2026-10-03; old demo links now land on the home screen). It has fictional service data and no account or shared storage. Demo changes reset when the page reloads.
 - `live.html` is the online Sunday checklist. It connects to the team-owned `jia-media-desk` Firebase project on the Spark no-cost plan.
+- `register.html` (+ `register.js`, `qrcode.js`) is a public event-registration demo for future events like the anniversary, modeled on abciyouth.online: Individual/Group, details, seating with seats left, GCash payment with screenshot, review, then a QR pass (Save QR image, Add to calendar). Sample data only; nothing is sent or saved online. The draft survives a refresh (sessionStorage). Apple Wallet is a placeholder: real passes need an Apple Developer account and a signing server. `qrcode.js` is qrcode-generator 1.4.4 (MIT, Kazuhiko Arase).
 - `program.html` is a public Program Team preview with fictional calendar items and a reorderable Sunday flow. It saves changes in that browser only. It does not sync between devices, update Drive, or notify anyone. Do not enter real birthdays or private contact details.
 
 ## This Sunday reminders
