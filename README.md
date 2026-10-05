@@ -1,5 +1,7 @@
 # JIA Media Desk
 
+**Odoo-style shell (John, 2026-10-05).** Every page uses `shell.js`: one `APPS` list drives the home launcher and each page's top bar (apps grid icon → home, app name, app menus; hamburger on phones), with a `Media Desk / App` breadcrumb under it. A page opts in with `<body data-app="id">` and an empty `<header class="jia-header">` (header items marked `data-keep` stay). Alt+H goes home; on the home screen, typing searches apps. To add an app, add one entry to `APPS`.
+
 The JIA Media Desk opens on a home screen of app tiles (`index.html`, John 2026-10-03): Sunday Checklist, Live Camera, Program Team, Program Flow and Media Run Sheet (Drive links), and Demo, plus the "This Sunday" card. Its parts:
 
 - `demo.html` is the public sample demo (moved from `index.html` on 2026-10-03; old demo links now land on the home screen). It has fictional service data and no account or shared storage. Demo changes reset when the page reloads.

@@ -16,7 +16,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Montserrat:wght@400;500;600;700;800&display=swap">
-  <link rel="stylesheet" href="jia.css?v=3">
+  <link rel="stylesheet" href="jia.css?v=4">
   <style>
     :root { --white:#fff; --green-soft:var(--sage); --blue:var(--green-mid); --blue-soft:var(--sage); --shadow:0 12px 32px rgba(15,44,33,.08); }
     html { scroll-behavior:smooth; }
@@ -95,8 +95,9 @@
     @media(max-width:480px) { .shell { padding:0 13px 65px; } .reset { padding:8px 10px; } .banner { margin:0 -13px; border-radius:0; } .tabs { width:100%; } .tab { flex:1; padding:10px 7px; font-size:.88rem; } .handoffs { gap:7px; } .handoff { padding:10px; } .card { padding:16px; } }
   </style>
 </head>
-<body>
-  <header class="jia-header"><div class="brand"><img src="jia-logo-176.png" alt="JIA logo" width="44" height="44"><div><strong>JIA Media Desk</strong><small>Sample demo</small></div></div><a href="index.html" style="color:white;font-size:.85rem;font-weight:700">Home</a><button class="reset" id="reset" type="button">Reset demo</button></header>
+<body data-app="demo">
+  <header class="jia-header"><button class="reset" id="reset" type="button" data-keep>Reset demo</button></header>
+  <script src="shell.js?v=1"></script>
   <div class="shell">
     <div class="banner" role="status"><strong>DEMO ONLY · Fictional service and sample statuses.</strong> Changes reset on reload and never update shared records. <a href="live.html">Open the live Sunday checklist pilot ↗</a> · <a href="program.html">Open the Program Team preview ↗</a></div>
     <nav class="tabs" aria-label="Main sections" role="tablist">

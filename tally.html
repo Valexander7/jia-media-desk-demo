@@ -22,7 +22,7 @@
   <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js">
   <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js">
   <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js">
-  <link rel="stylesheet" href="jia.css?v=3">
+  <link rel="stylesheet" href="jia.css?v=4">
   <style>
     body { background:var(--near-black); color:white; }
     .shell { max-width:760px; margin:auto; padding:12px 12px 32px; }
@@ -48,8 +48,9 @@
     .footer a { color:var(--sage); }
   </style>
 </head>
-<body>
-  <header class="jia-header"><div class="brand"><img src="jia-logo-176.png" alt="JIA logo" width="44" height="44"><div><strong>JIA Alabang</strong><small>Live camera · trial</small></div></div><nav><a href="index.html">Home</a><a href="live.html">Checklist</a></nav></header>
+<body data-app="tally">
+  <header class="jia-header"></header>
+  <script src="shell.js?v=1"></script>
   <main class="shell">
     <section class="card" id="auth-card" hidden>
       <h1>Live camera</h1>

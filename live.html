@@ -25,7 +25,7 @@
   <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js">
   <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js">
   <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js">
-  <link rel="stylesheet" href="jia.css?v=3">
+  <link rel="stylesheet" href="jia.css?v=4">
   <style>
     .shell { max-width:760px; margin:auto; padding:12px 12px 44px; }
     .banner { padding:12px 14px; border-radius:10px; font-weight:700; background:var(--green-dark); color:white; }
@@ -73,8 +73,9 @@
     @media (max-width:360px) { .shell { padding-left:10px; padding-right:10px; } .card { padding:14px; } .jia-header img { width:40px; height:40px; } }
   </style>
 </head>
-<body>
-  <header class="jia-header"><div class="brand"><img src="jia-logo-176.png" alt="JIA logo" width="44" height="44"><div><strong>JIA Alabang</strong><small>Sunday checklist · pilot</small></div></div><nav><a href="index.html">Home</a><a href="tally.html">Live camera</a></nav></header>
+<body data-app="live">
+  <header class="jia-header"></header>
+  <script src="shell.js?v=1"></script>
   <main class="shell">
     <div class="banner idle" id="connection" role="status">Loading…</div>
     <section class="card" id="auth-card">
