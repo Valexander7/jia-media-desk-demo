@@ -35,6 +35,8 @@
       icon: '<path d="M6 3h9l4 4v14H6z"/><path d="M15 3v4h4M9 12h7M9 16h7"/>' },
     { id: "sheet", name: "Media Run Sheet", tag: "Drive ↗", href: "https://docs.google.com/spreadsheets/d/1ItieZgLx6cOteA-jBNAFiQaqH71Zr6w1y_Wyo9wKMaw/edit", color: "#2e7d4f", external: true,
       icon: '<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M3 15h18M9 3v18"/>' },
+    { id: "rules", name: "Media Rules", tag: "Drive ↗", href: "https://drive.google.com/file/d/1Ztwd_EmgjRyMmqMl0giCMZ_rfnPBj0Qv/view", color: "#8a2c2c", external: true,
+      icon: '<path d="M12 3l8 3v6c0 4.5-3.4 8.2-8 9-4.6-.8-8-4.5-8-9V6z"/><path d="M9 12l2 2 4-4"/>' },
     { id: "demo", name: "Demo", tag: "Sample data", href: "demo.html", color: "#5b6b61",
       icon: '<circle cx="12" cy="12" r="9"/><path d="M10 8.5l5 3.5-5 3.5z" fill="currentColor"/>',
       menus: [] },
